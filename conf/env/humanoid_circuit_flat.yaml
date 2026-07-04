@@ -1,0 +1,43 @@
+# Flat circuit - No stairs, pure navigation with heading awareness
+# Tests turning ability with explicit heading error in observations
+
+name: HumanoidCircuit-v0
+
+make_kwargs:
+  render_mode: null
+  
+  # Simple square pattern to test turning
+  waypoints:
+    - [5.0, 0.0]     # Forward
+    - [5.0, 5.0]     # Right turn
+    - [2.0, 5.0]     # Back
+    - [2.0, 0.0]     # Left turn (back to start)
+  
+  waypoint_reach_threshold: 1.5
+  
+  # No stairs
+  stairs: []
+  
+  terrain_width: 15.0  # Smaller area for tighter square
+  
+  # Reward weights (navigation focused)
+  progress_reward_weight: 200.0   # Very high progress reward
+  waypoint_bonus: 150.0           # Increased to encourage reaching all waypoints
+  circuit_completion_bonus: 500.0 # Large one-time reward for completing all 4 waypoints
+  height_reward_weight: 0.0       # No height component
+  forward_reward_weight: 1.0      # Increased - reward forward movement more
+  heading_reward_weight: 2.0      # Reward for facing right direction while moving (reduced)
+  balance_reward_weight: 0.5      # Reduced to allow more natural gait
+  optimal_speed: 1.2              # Faster for more natural walking
+  speed_regulation_weight: 0.2    # Reduced weight - less restrictive
+  ctrl_cost_weight: 0.1
+  contact_cost_weight: 5e-7
+  healthy_reward: 5.0
+  
+  terminate_when_unhealthy: true
+  healthy_z_range: [0.8, 3.0]
+
+vec_env:
+  n_envs: 8
+  start_method: spawn
+  monitor: true

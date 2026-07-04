@@ -1,0 +1,28 @@
+# @package _global_
+
+# Humanoid walking to a target destination
+name: HumanoidDestination-v0
+
+make_kwargs:
+  render_mode: null
+  # Target position (x, y) - 20 meters forward for challenging long-distance navigation
+  target_position: [20.0, 0.0]
+  # Reward weights
+  distance_reward_weight: 1.0
+  reach_reward_weight: 10.0
+  ctrl_cost_weight: 0.1
+  healthy_reward: 5.0
+  # Health constraints
+  terminate_when_unhealthy: true
+  healthy_z_range: [0.8, 2.5]
+  # Destination termination
+  terminate_at_destination: true  # End episode when destination is reached
+  destination_threshold: 1.0      # 1.0m threshold for 20m target (5% tolerance)
+  # Reset noise
+  reset_noise_scale: 0.01
+  exclude_current_positions_from_observation: true
+
+vec_env:
+  n_envs: 16
+  start_method: spawn
+  monitor: true

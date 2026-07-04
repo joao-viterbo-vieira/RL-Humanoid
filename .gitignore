@@ -1,0 +1,30 @@
+﻿__pycache__/
+*.pyc
+.venv/
+outputs/
+outputs_torchrl/
+multirun/
+*/checkpoints/
+*.zip
+*.pkl
+.DS_Store
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.blg
+*.synctex.gz
+*.toc
+*.lot
+*.lof
+*.bcf
+*.run.xml
+
+# Exception: Allow critical files in outputs_best for reproducibility
+!outputs_best/**/best_model.zip
+!outputs_best/**/vecnormalize_final.pkl
+!outputs_best/**/progress.csv
+!outputs_best/**/evaluations.npz
