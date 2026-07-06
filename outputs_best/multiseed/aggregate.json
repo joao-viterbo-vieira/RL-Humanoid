@@ -1,0 +1,82 @@
+[
+  {
+    "key": "S1",
+    "task": "Flat locomotion",
+    "mode": "deterministic",
+    "n_seeds": 5,
+    "success_rate_mean": 79.8,
+    "success_rate_std": 5.268775948927796,
+    "reward_mean": 8308.348241306792,
+    "reward_std": 272.2236953665548
+  },
+  {
+    "key": "S1",
+    "task": "Flat locomotion",
+    "mode": "stochastic",
+    "n_seeds": 5,
+    "success_rate_mean": 26.2,
+    "success_rate_std": 5.230678732248808,
+    "reward_mean": 4602.301771847851,
+    "reward_std": 292.55481877736867
+  },
+  {
+    "key": "S2",
+    "task": "Stair climbing",
+    "mode": "deterministic",
+    "n_seeds": 5,
+    "success_rate_mean": 92.2,
+    "success_rate_std": 3.1240998703626617,
+    "reward_mean": 15318.737939901936,
+    "reward_std": 372.2339387357769
+  },
+  {
+    "key": "S2",
+    "task": "Stair climbing",
+    "mode": "stochastic",
+    "n_seeds": 5,
+    "success_rate_mean": 52.4,
+    "success_rate_std": 5.276362383309169,
+    "reward_mean": 10847.376250273377,
+    "reward_std": 390.0880889937048
+  },
+  {
+    "key": "S3",
+    "task": "Circuit (flat)",
+    "mode": "deterministic",
+    "n_seeds": 5,
+    "success_rate_mean": 54.4,
+    "success_rate_std": 4.923413450036468,
+    "reward_mean": 6932.890969318922,
+    "reward_std": 205.1760089263209
+  },
+  {
+    "key": "S3",
+    "task": "Circuit (flat)",
+    "mode": "stochastic",
+    "n_seeds": 5,
+    "success_rate_mean": 9.8,
+    "success_rate_std": 3.0594117081556713,
+    "reward_mean": 5507.158985066116,
+    "reward_std": 105.7368530533151
+  },
+  {
+    "key": "S4",
+    "task": "Circuit + stairs",
+    "mode": "deterministic",
+    "n_seeds": 5,
+    "success_rate_mean": 80.8,
+    "success_rate_std": 5.268775948927796,
+    "reward_mean": 9845.383983172844,
+    "reward_std": 364.4576428439753
+  },
+  {
+    "key": "S4",
+    "task": "Circuit + stairs",
+    "mode": "stochastic",
+    "n_seeds": 5,
+    "success_rate_mean": 39.6,
+    "success_rate_std": 4.223742416388575,
+    "reward_mean": 6964.351487243612,
+    "reward_std": 361.1560301039861
+  }
+]

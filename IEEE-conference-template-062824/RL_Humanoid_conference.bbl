@@ -22,12 +22,9 @@
 \BIBdecl
 
 \bibitem{sutton2018reinforcement}
-\BIBentryALTinterwordspacing
 R.~S. Sutton and A.~G. Barto, \emph{Reinforcement Learning: An Introduction},
   2nd~ed.\hskip 1em plus 0.5em minus 0.4em\relax Cambridge, MA: MIT Press,
-  2018. [Online]. Available:
-  \url{https://mitpress.mit.edu/9780262039246/reinforcement-learning/}
-\BIBentrySTDinterwordspacing
+  2018.
 
 \bibitem{bostondynamics2024atlas}
 \BIBentryALTinterwordspacing
@@ -43,41 +40,26 @@ R.~S. Sutton and A.~G. Barto, \emph{Reinforcement Learning: An Introduction},
 
 \bibitem{todorov2012mujoco}
 E.~Todorov, T.~Erez, and Y.~Tassa, ``{MuJoCo}: A physics engine for model-based
-  control,'' in \emph{2012 IEEE/RSJ International Conference on Intelligent
-  Robots and Systems (IROS)}, 2012, pp. 5026--5033.
+  control,'' in \emph{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems
+  (IROS)}, 2012, pp. 5026--5033.
 
 \bibitem{towers2024gymnasium}
-\BIBentryALTinterwordspacing
-M.~Towers, A.~Kwiatkowski, J.~Terry, J.~U. Balis, G.~De~Cola, T.~Deleu,
-  M.~Goul{\~a}o, A.~Kallinteris, M.~Krimmel, A.~KG, R.~Perez-Vicente,
-  A.~Pierr{\'e}, S.~Schulhoff, J.~J. Tai, H.~Tan, and O.~G. Younis,
-  ``{Gymnasium}: A standard interface for reinforcement learning
-  environments,'' 2024. [Online]. Available:
-  \url{https://arxiv.org/abs/2407.17032}
-\BIBentrySTDinterwordspacing
+M.~Towers \emph{et~al.}, ``{Gymnasium}: A standard interface for reinforcement
+  learning environments,'' arXiv preprint arXiv:2407.17032, 2024.
 
 \bibitem{schulman2017ppo}
-\BIBentryALTinterwordspacing
 J.~Schulman, F.~Wolski, P.~Dhariwal, A.~Radford, and O.~Klimov, ``Proximal
-  policy optimization algorithms,'' 2017. [Online]. Available:
-  \url{https://arxiv.org/abs/1707.06347}
-\BIBentrySTDinterwordspacing
+  policy optimization algorithms,'' arXiv preprint arXiv:1707.06347, 2017.
 
 \bibitem{raffin2021sb3}
-\BIBentryALTinterwordspacing
 A.~Raffin, A.~Hill, A.~Gleave, A.~Kanervisto, M.~Ernestus, and N.~Dormann,
   ``{Stable-Baselines3}: Reliable reinforcement learning implementations,''
   \emph{Journal of Machine Learning Research}, vol.~22, no. 268, pp. 1--8,
-  2021. [Online]. Available: \url{https://jmlr.org/papers/v22/20-1364.html}
-\BIBentrySTDinterwordspacing
+  2021.
 
 \bibitem{heess2017emergence}
-\BIBentryALTinterwordspacing
-N.~Heess, S.~Sriram, J.~Lemmon, J.~Merel, G.~Wayne, Y.~Tassa, T.~Erez, Z.~Wang,
-  S.~M.~A. Eslami, M.~Riedmiller, and D.~Silver, ``Emergence of locomotion
-  behaviours in rich environments,'' 2017. [Online]. Available:
-  \url{https://arxiv.org/abs/1707.02286}
-\BIBentrySTDinterwordspacing
+N.~Heess \emph{et~al.}, ``Emergence of locomotion behaviours in rich
+  environments,'' arXiv preprint arXiv:1707.02286, 2017.
 
 \bibitem{peng2018deepmimic}
 X.~B. Peng, P.~Abbeel, S.~Levine, and M.~van~de Panne, ``{DeepMimic}:
@@ -86,17 +68,13 @@ X.~B. Peng, P.~Abbeel, S.~Levine, and M.~van~de Panne, ``{DeepMimic}:
   143:1--143:14, 2018.
 
 \bibitem{hwangbo2019agile}
-J.~Hwangbo, J.~Lee, A.~Dosovitskiy, D.~Bellicoso, V.~Tsounis, V.~Koltun, and
-  M.~Hutter, ``Learning agile and dynamic motor skills for legged robots,''
-  \emph{Science Robotics}, vol.~4, no.~26, p. eaau5872, 2019.
+J.~Hwangbo \emph{et~al.}, ``Learning agile and dynamic motor skills for legged
+  robots,'' \emph{Science Robotics}, vol.~4, no.~26, p. eaau5872, 2019.
 
 \bibitem{lee2020learning}
-\BIBentryALTinterwordspacing
 J.~Lee, J.~Hwangbo, L.~Wellhausen, V.~Koltun, and M.~Hutter, ``Learning
   quadrupedal locomotion over challenging terrain,'' \emph{Science Robotics},
-  vol.~5, no.~47, p. eabc5986, 2020. [Online]. Available:
-  \url{https://www.science.org/doi/10.1126/scirobotics.abc5986}
-\BIBentrySTDinterwordspacing
+  vol.~5, no.~47, p. eabc5986, 2020.
 
 \bibitem{miki2022wild}
 T.~Miki, J.~Lee, J.~Hwangbo, L.~Wellhausen, V.~Koltun, and M.~Hutter,
@@ -104,22 +82,14 @@ T.~Miki, J.~Lee, J.~Hwangbo, L.~Wellhausen, V.~Koltun, and M.~Hutter,
   \emph{Science Robotics}, vol.~7, no.~62, p. eabk2822, 2022.
 
 \bibitem{rudin2022minutes}
-\BIBentryALTinterwordspacing
 N.~Rudin, D.~Hoeller, P.~Reist, and M.~Hutter, ``Learning to walk in minutes
-  using massively parallel deep reinforcement learning,'' in \emph{Proceedings
-  of the 5th Conference on Robot Learning (CoRL)}, ser. Proceedings of Machine
-  Learning Research, vol. 164, 2022, pp. 91--100. [Online]. Available:
-  \url{https://proceedings.mlr.press/v164/rudin22a.html}
-\BIBentrySTDinterwordspacing
+  using massively parallel deep reinforcement learning,'' in \emph{Proc. 5th
+  Conf. Robot Learning (CoRL)}, 2022, pp. 91--100.
 
 \bibitem{makoviychuk2021isaac}
-\BIBentryALTinterwordspacing
-V.~Makoviychuk, L.~Wawrzyniak, Y.~Guo, M.~Lu, K.~Storey, M.~Macklin,
-  D.~Hoeller, N.~Rudin, A.~Allshire, A.~Handa, and G.~State, ``{Isaac Gym}:
-  High performance {GPU}-based physics simulation for robot learning,'' 2021,
-  {NeurIPS} 2021 Datasets and Benchmarks Track. [Online]. Available:
-  \url{https://arxiv.org/abs/2108.10470}
-\BIBentrySTDinterwordspacing
+V.~Makoviychuk \emph{et~al.}, ``{Isaac Gym}: High performance {GPU}-based
+  physics simulation for robot learning,'' arXiv preprint arXiv:2108.10470,
+  2021.
 
 \bibitem{siekmann2021stairs}
 J.~Siekmann, K.~Green, J.~Warila, A.~Fern, and J.~Hurst, ``Blind bipedal stair
@@ -133,43 +103,31 @@ I.~Radosavovic, T.~Xiao, B.~Zhang, T.~Darrell, J.~Malik, and K.~Sreenath,
 
 \bibitem{ng1999shaping}
 A.~Y. Ng, D.~Harada, and S.~Russell, ``Policy invariance under reward
-  transformations: Theory and application to reward shaping,'' in
-  \emph{Proceedings of the 16th International Conference on Machine Learning
-  (ICML)}.\hskip 1em plus 0.5em minus 0.4em\relax Morgan Kaufmann, 1999, pp.
-  278--287.
+  transformations: Theory and application to reward shaping,'' in \emph{Proc.
+  16th Int. Conf. Machine Learning (ICML)}, 1999, pp. 278--287.
 
 \bibitem{henderson2018matters}
 P.~Henderson, R.~Islam, P.~Bachman, J.~Pineau, D.~Precup, and D.~Meger, ``Deep
-  reinforcement learning that matters,'' in \emph{Proceedings of the 32nd AAAI
-  Conference on Artificial Intelligence}, 2018, pp. 3207--3214.
+  reinforcement learning that matters,'' in \emph{Proc. 32nd AAAI Conf.
+  Artificial Intelligence}, 2018, pp. 3207--3214.
 
 \bibitem{agarwal2021precipice}
 R.~Agarwal, M.~Schwarzer, P.~S. Castro, A.~Courville, and M.~G. Bellemare,
   ``Deep reinforcement learning at the edge of the statistical precipice,'' in
-  \emph{Advances in Neural Information Processing Systems 34 (NeurIPS)}, 2021.
+  \emph{Adv. Neural Information Processing Systems (NeurIPS)}, 2021.
 
 \bibitem{bengio2009curriculum}
 Y.~Bengio, J.~Louradour, R.~Collobert, and J.~Weston, ``Curriculum learning,''
-  in \emph{Proceedings of the 26th Annual International Conference on Machine
-  Learning (ICML)}.\hskip 1em plus 0.5em minus 0.4em\relax ACM, 2009, pp.
-  41--48.
+  in \emph{Proc. 26th Int. Conf. Machine Learning (ICML)}, 2009, pp. 41--48.
 
 \bibitem{haarnoja2018sac}
-\BIBentryALTinterwordspacing
 T.~Haarnoja, A.~Zhou, P.~Abbeel, and S.~Levine, ``Soft actor-critic: Off-policy
   maximum entropy deep reinforcement learning with a stochastic actor,'' in
-  \emph{Proceedings of the 35th International Conference on Machine Learning
-  (ICML)}, 2018, pp. 1861--1870. [Online]. Available:
-  \url{https://proceedings.mlr.press/v80/haarnoja18b.html}
-\BIBentrySTDinterwordspacing
+  \emph{Proc. 35th Int. Conf. Machine Learning (ICML)}, 2018, pp. 1861--1870.
 
 \bibitem{bou2024torchrl}
-\BIBentryALTinterwordspacing
-A.~Bou, M.~Bettini, S.~Dittert, V.~Kumar, S.~Sodhani, X.~Yang, G.~De~Fabritiis,
-  and V.~Moens, ``{TorchRL}: A data-driven decision-making library for
+A.~Bou \emph{et~al.}, ``{TorchRL}: A data-driven decision-making library for
   {PyTorch},'' in \emph{International Conference on Learning Representations
-  (ICLR)}, 2024, conference paper (OpenReview). [Online]. Available:
-  \url{https://openreview.net/forum?id=W78eFFCOMi}
-\BIBentrySTDinterwordspacing
+  (ICLR)}, 2024.
 
 \end{thebibliography}
