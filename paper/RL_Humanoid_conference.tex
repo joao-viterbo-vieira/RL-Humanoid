@@ -45,14 +45,14 @@ Porto, Portugal \\
 up199504009@edu.fe.up.pt}
 \and
 \IEEEauthorblockN{José Pedro Carvalho}
-\IEEEauthorblockA{\textit{SYSTEC-ARISE} \\
+\IEEEauthorblockA{\textit{SYSTEC-ARISE,} \\
 \textit{Faculty of Engineering} \\
 \textit{University of Porto}\\
 Porto, Portugal \\
 jpcarvalho@fe.up.pt}
 \and
 \IEEEauthorblockN{António Pedro Aguiar}
-\IEEEauthorblockA{\textit{SYSTEC-ARISE} \\
+\IEEEauthorblockA{\textit{SYSTEC-ARISE,} \\
 \textit{Faculty of Engineering} \\
 \textit{University of Porto}\\
 Porto, Portugal \\
@@ -76,7 +76,7 @@ Reinforcement learning (RL) provides a general framework for sequential decision
 
 In this work we focus on two implementation-level choices that repeatedly emerged as critical failure points when moving beyond flat locomotion: \emph{reward design} and \emph{termination criteria}. Reward functions that suffice for flat walking often provide weak or misleading learning signals on contact-rich terrain such as stairs. Similarly, termination logic tuned to a fixed ground reference can terminate episodes prematurely when the agent stands on elevated terrain, silently preventing learning.
 
-This paper presents an empirical study of these issues using the MuJoCo Humanoid~\cite{todorov2012mujoco,towers2024gymnasium} and PPO~\cite{schulman2017ppo} as implemented in Stable-Baselines3~\cite{raffin2021sb3}. We evaluate a sequence of tasks of increasing complexity: flat locomotion, stair climbing, waypoint-based circuit navigation, and circuits that include stair segments (Fig.~\ref{fig:task_suite}). Rather than proposing a new algorithm, our objective is to identify which \emph{implementation-level design decisions} most strongly affect learning stability and task success in this setting. Our contributions are empirical and practitioner-oriented:
+This paper presents an empirical study of how reward design and episode-termination criteria affect humanoid locomotion learning beyond flat terrain, using the MuJoCo Humanoid~\cite{todorov2012mujoco,towers2024gymnasium} and PPO~\cite{schulman2017ppo} as implemented in Stable-Baselines3~\cite{raffin2021sb3}. We evaluate a sequence of tasks of increasing complexity: flat locomotion, stair climbing, waypoint-based circuit navigation, and circuits that include stair segments (Fig.~\ref{fig:task_suite}). Rather than proposing a new algorithm, our objective is to identify which \emph{implementation-level design decisions} most strongly affect learning stability and task success in this setting. Our contributions are empirical and practitioner-oriented:
 \begin{itemize}
     \item Two custom, fully parameterized MuJoCo environments: a configurable stairs environment and a waypoint-based circuit environment with optional stair segments.
     \item A structured comparison of four PPO configurations (S1--S4) that progressively introduce reward shaping, navigation structure, and terrain-aware termination handling.
