@@ -12,12 +12,11 @@ Reinforcement learning training for humanoid agents with **4 different locomotio
 
 ## 📄 Paper
 
-The accompanying 6-page conference paper is included in this repository:
+The accompanying 6-page conference paper lives in [`paper/`](paper/) — a self-contained folder (compiles standalone, ready to zip for Overleaf):
 
-- **Compiled PDF:** [`IEEE-conference-template-062824/RL_Humanoid_conference.pdf`](IEEE-conference-template-062824/RL_Humanoid_conference.pdf)
-- **LaTeX source:** [`IEEE-conference-template-062824/RL_Humanoid_conference.tex`](IEEE-conference-template-062824/RL_Humanoid_conference.tex) — figures in [`figures/`](figures/) and [`images/`](images/), bibliography in [`references.bib`](references.bib)
-- **Self-contained Overleaf copy:** [`RL_Humanoid_conference_overleaf/`](RL_Humanoid_conference_overleaf/) — kept in sync with the source above
-- **Training-curve figures** are regenerated with [`scripts/plot_training_curves.py`](scripts/plot_training_curves.py)
+- **Compiled PDF:** [`paper/RL_Humanoid_conference.pdf`](paper/RL_Humanoid_conference.pdf)
+- **LaTeX source:** [`paper/RL_Humanoid_conference.tex`](paper/RL_Humanoid_conference.tex), with [`paper/references.bib`](paper/references.bib), `IEEEtran.cls`/`IEEEtran.bst`, and the figures it uses in `paper/figures/` and `paper/images/`
+- **Training-curve figures** are regenerated with [`scripts/plot_training_curves.py`](scripts/plot_training_curves.py) (outputs to [`figures/`](figures/); copy the updated `combined_training_curves.pdf` into `paper/figures/` when it changes)
 
 ---
 
