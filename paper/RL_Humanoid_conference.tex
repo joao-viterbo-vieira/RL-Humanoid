@@ -119,7 +119,7 @@ The action space is continuous, $a_t \in \mathbb{R}^{17}$: motor commands bounde
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.45\linewidth]{images/action_space.png}
+    \includegraphics[width=0.60\linewidth]{images/action_space.png}
     \caption{Action space: the 17 torque-controlled joints of the MuJoCo Humanoid.}
     \label{fig:action_space}
 \end{figure} All environments use a physics timestep of $0.003$\,s with frame skip 5, i.e., a control interval of $dt = 0.015$\,s ($\approx 66.7$\,Hz).
@@ -336,7 +336,7 @@ S4: Circ.+St. & 80M & 64M & $10{,}134 \pm 2{,}421$ & 598 & \textbf{87\%} \\
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=0.70\textwidth]{figures/combined_training_curves.pdf}
+    \includegraphics[width=0.80\textwidth]{figures/combined_training_curves.pdf}
     \caption{Training curves for the four final runs: mean episode return per rollout batch in raw reward units (faded: raw; solid: EMA-smoothed). Reward scales are task-specific and not comparable across panels.}
     \label{fig:curves}
 \end{figure*}
