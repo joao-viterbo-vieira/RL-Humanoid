@@ -78,9 +78,10 @@ In this work we focus on two implementation-level choices that repeatedly emerge
 
 This paper presents an empirical study of how reward design and episode-termination criteria affect humanoid locomotion learning beyond flat terrain, using the MuJoCo Humanoid~\cite{todorov2012mujoco,towers2024gymnasium} and PPO~\cite{schulman2017ppo} as implemented in Stable-Baselines3~\cite{raffin2021sb3}. We evaluate a sequence of tasks of increasing complexity: flat locomotion, stair climbing, waypoint-based circuit navigation, and circuits that include stair segments (Fig.~\ref{fig:task_suite}). Rather than proposing a new algorithm, our objective is to identify which \emph{implementation-level design decisions} most strongly affect learning stability and task success in this setting. Our contributions are empirical and practitioner-oriented:
 \begin{itemize}
-    \item Two custom, fully parameterized MuJoCo environments: a configurable stairs environment and a waypoint-based circuit environment with optional stair segments.
-    \item A structured comparison of four PPO configurations (S1--S4) that progressively introduce reward shaping, navigation structure, and terrain-aware termination handling.
-    \item An evaluation protocol reporting task-completion success rates over 100 episodes per task.
+    \item Two custom, fully parameterized MuJoCo benchmark environments for humanoid locomotion: a configurable stair-climbing task and a waypoint-based circuit-navigation task with optional stair segments.
+    \item A systematic investigation of reward shaping and termination design through four PPO-based task configurations (S1--S4), progressively introducing terrain-aware observations, task-aligned rewards, navigation objectives, and terrain-relative health checks.
+    \item Experimental evidence that episode-termination logic can determine learning success on uneven terrain: controlled ablations show that fixed world-frame health bounds can prematurely terminate healthy agents on elevated terrain, while terrain-relative termination enables successful stair traversal and circuit completion, reaching up to 87\% completion on the combined navigation-and-stairs task.
+    \item A reproducible evaluation methodology based on 100-episode success-rate evaluations for every task, demonstrating up to 96\% stair-climbing success and providing openly available environments, training configurations, and evaluation scripts for future comparison and benchmarking.
 \end{itemize}
 For reproducibility, the full implementation (environments, training and evaluation scripts, and the exact per-run configurations) is publicly available at \url{https://github.com/joao-viterbo-vieira/RL-Humanoid}.
 
