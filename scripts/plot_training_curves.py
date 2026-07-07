@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, MaxNLocator
 
 # Root of the repository (this file lives in <root>/scripts/).
 ROOT = Path(__file__).resolve().parents[1]
@@ -141,6 +141,10 @@ def draw_curve(ax, cfg, x, y, y_smooth, zero_baseline=True,
         ax.spines[spine].set_visible(False)
 
     ax.xaxis.set_major_formatter(FuncFormatter(millions_formatter))
+    # Detailed y-axis: ~5 intervals at round steps, thousands-separated labels
+    # matching how reward values are written in the paper prose.
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=6, steps=[1, 2, 2.5, 5, 10]))
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _pos: f"{v:,.0f}"))
     ax.tick_params(length=0)
 
     # Both axes anchored at 0: x from training start, y from a zero reward
@@ -191,7 +195,7 @@ def plot_run(cfg, smoothing, outdir, zero_baseline=True):
 
 def plot_combined(smoothing, outdir, zero_baseline=True, stem="combined_training_curves"):
     """All four tasks as one 2x2 panel (compact comparison figure)."""
-    fig, axes = plt.subplots(2, 2, figsize=(6.4, 3.0))
+    fig, axes = plt.subplots(2, 2, figsize=(6.4, 3.6))
     for i, (cfg, ax) in enumerate(zip(RUNS, axes.flat)):
         x, y = load_run(cfg["run"])
         y_smooth = ema_smooth(y, smoothing)
