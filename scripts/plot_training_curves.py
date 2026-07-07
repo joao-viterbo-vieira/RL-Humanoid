@@ -84,11 +84,11 @@ def set_style():
         "axes.edgecolor": SPINE,
         "axes.linewidth": 0.8,
         "axes.labelcolor": INK,
-        "axes.labelsize": 11,
+        "axes.labelsize": 12,
         "xtick.color": INK,
         "ytick.color": INK,
-        "xtick.labelsize": 9.5,
-        "ytick.labelsize": 9.5,
+        "xtick.labelsize": 10.5,
+        "ytick.labelsize": 10.5,
         "figure.dpi": 200,
         "savefig.dpi": 200,
         "pdf.fonttype": 42,   # embed TrueType so glyphs are editable/searchable
@@ -160,7 +160,7 @@ def draw_curve(ax, cfg, x, y, y_smooth, zero_baseline=True,
     if ylabel:
         ax.set_ylabel(Y_LABEL)
     if title:
-        ax.set_title(title, fontsize=11, color=INK, pad=6)
+        ax.set_title(title, fontsize=12, color=INK, pad=5)
 
 
 def save(fig, outdir, stem):
@@ -191,7 +191,7 @@ def plot_run(cfg, smoothing, outdir, zero_baseline=True):
 
 def plot_combined(smoothing, outdir, zero_baseline=True, stem="combined_training_curves"):
     """All four tasks as one 2x2 panel (compact comparison figure)."""
-    fig, axes = plt.subplots(2, 2, figsize=(7.0, 4.8))
+    fig, axes = plt.subplots(2, 2, figsize=(6.4, 3.0))
     for i, (cfg, ax) in enumerate(zip(RUNS, axes.flat)):
         x, y = load_run(cfg["run"])
         y_smooth = ema_smooth(y, smoothing)
@@ -200,9 +200,10 @@ def plot_combined(smoothing, outdir, zero_baseline=True, stem="combined_training
             ax, cfg, x, y, y_smooth, zero_baseline=zero_baseline,
             title=cfg["label"],
             xlabel=(row == 1),   # x label only on the bottom row
-            ylabel=(col == 0),   # y label only on the left column
+            ylabel=False,        # shared y label via fig.supylabel below
         )
-    fig.tight_layout(pad=0.6, w_pad=1.2, h_pad=1.2)
+    fig.tight_layout(pad=0.4, w_pad=1.0, h_pad=0.9, rect=(0.025, 0, 1, 1))
+    fig.supylabel(Y_LABEL, fontsize=12, color=INK, x=0.012)
     save(fig, outdir, stem)
     plt.close(fig)
     print(f"combined: {stem}.(pdf|png)")

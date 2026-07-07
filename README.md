@@ -8,7 +8,16 @@ Reinforcement learning training for humanoid agents with **4 different locomotio
 
 > **Note:** TorchRL and SAC were used only for initial experiments. All main training and results use Stable-Baselines3 with PPO. See [Extras](#-extras-sac--torchrl) for running these alternative approaches.
 
+---
 
+## 📄 Paper
+
+The accompanying 6-page conference paper is included in this repository:
+
+- **Compiled PDF:** [`IEEE-conference-template-062824/RL_Humanoid_conference.pdf`](IEEE-conference-template-062824/RL_Humanoid_conference.pdf)
+- **LaTeX source:** [`IEEE-conference-template-062824/RL_Humanoid_conference.tex`](IEEE-conference-template-062824/RL_Humanoid_conference.tex) — figures in [`figures/`](figures/) and [`images/`](images/), bibliography in [`references.bib`](references.bib)
+- **Self-contained Overleaf copy:** [`RL_Humanoid_conference_overleaf/`](RL_Humanoid_conference_overleaf/) — kept in sync with the source above
+- **Training-curve figures** are regenerated with [`scripts/plot_training_curves.py`](scripts/plot_training_curves.py)
 
 ---
 

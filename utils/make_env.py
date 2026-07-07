@@ -4,20 +4,19 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNorm
 from stable_baselines3.common.monitor import Monitor
 
 #added line
-from utils.reward_wrappers import UprightAndEffortWrapper
+from utils.reward_wrappers import EffortAndLateralWrapper
 
 def make_single_env(env_id: str, make_kwargs: dict, monitor: bool = True, seed: int | None = None):
     """Factory returning a thunk to create one env instance."""
     def _init():
         # Remove custom wrapper keys before passing to gym.make
         env_kwargs = dict(make_kwargs or {})
-        upright_w = env_kwargs.pop('upright_weight', 0.5)
         effort_w = env_kwargs.pop('effort_weight', 0.001)
         lateral_w = env_kwargs.pop('lateral_penalty_weight', 1.0)
         env = gym.make(env_id, **env_kwargs)
         if seed is not None:
             env.reset(seed=seed)
-        env = UprightAndEffortWrapper(env, upright_w=upright_w, effort_w=effort_w, lateral_w=lateral_w)
+        env = EffortAndLateralWrapper(env, effort_w=effort_w, lateral_w=lateral_w)
         if monitor:
             env = Monitor(env)
         return env

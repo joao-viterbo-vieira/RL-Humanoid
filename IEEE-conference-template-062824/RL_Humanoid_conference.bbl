@@ -7,8 +7,7 @@
 \providecommand{\BIBentrySTDinterwordspacing}{\spaceskip=0pt\relax}
 \providecommand{\BIBentryALTinterwordstretchfactor}{4}
 \providecommand{\BIBentryALTinterwordspacing}{\spaceskip=\fontdimen2\font plus
-\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
-  \fontdimen4\font\relax}
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus \fontdimen4\font\relax}
 \providecommand{\BIBforeignlanguage}[2]{{%
 \expandafter\ifx\csname l@#1\endcsname\relax
 \typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
@@ -22,112 +21,57 @@
 \BIBdecl
 
 \bibitem{sutton2018reinforcement}
-R.~S. Sutton and A.~G. Barto, \emph{Reinforcement Learning: An Introduction},
-  2nd~ed.\hskip 1em plus 0.5em minus 0.4em\relax Cambridge, MA: MIT Press,
-  2018.
-
-\bibitem{bostondynamics2024atlas}
-\BIBentryALTinterwordspacing
-{Boston Dynamics}, ``{Atlas}: The world's most dynamic humanoid robot,'' Web
-  page, 2024. [Online]. Available: \url{https://bostondynamics.com/atlas/}
-\BIBentrySTDinterwordspacing
-
-\bibitem{unitree2024h1}
-\BIBentryALTinterwordspacing
-{Unitree Robotics}, ``{Unitree H1}: General-purpose humanoid robot,'' Web page,
-  2024. [Online]. Available: \url{https://www.unitree.com/h1/}
-\BIBentrySTDinterwordspacing
+R.~S. Sutton and A.~G. Barto, \emph{Reinforcement Learning: An Introduction}, 2nd~ed.\hskip 1em plus 0.5em minus 0.4em\relax Cambridge, MA: MIT Press, 2018.
 
 \bibitem{todorov2012mujoco}
-E.~Todorov, T.~Erez, and Y.~Tassa, ``{MuJoCo}: A physics engine for model-based
-  control,'' in \emph{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems
-  (IROS)}, 2012, pp. 5026--5033.
+E.~Todorov, T.~Erez, and Y.~Tassa, ``{MuJoCo}: A physics engine for model-based control,'' in \emph{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2012, pp. 5026--5033.
 
 \bibitem{towers2024gymnasium}
-M.~Towers \emph{et~al.}, ``{Gymnasium}: A standard interface for reinforcement
-  learning environments,'' arXiv preprint arXiv:2407.17032, 2024.
+M.~Towers \emph{et~al.}, ``{Gymnasium}: A standard interface for reinforcement learning environments,'' arXiv preprint arXiv:2407.17032, 2024.
 
 \bibitem{schulman2017ppo}
-J.~Schulman, F.~Wolski, P.~Dhariwal, A.~Radford, and O.~Klimov, ``Proximal
-  policy optimization algorithms,'' arXiv preprint arXiv:1707.06347, 2017.
+J.~Schulman \emph{et~al.}, ``Proximal policy optimization algorithms,'' arXiv preprint arXiv:1707.06347, 2017.
 
 \bibitem{raffin2021sb3}
-A.~Raffin, A.~Hill, A.~Gleave, A.~Kanervisto, M.~Ernestus, and N.~Dormann,
-  ``{Stable-Baselines3}: Reliable reinforcement learning implementations,''
-  \emph{Journal of Machine Learning Research}, vol.~22, no. 268, pp. 1--8,
-  2021.
+A.~Raffin \emph{et~al.}, ``{Stable-Baselines3}: Reliable reinforcement learning implementations,'' \emph{Journal of Machine Learning Research}, vol.~22, no. 268, pp. 1--8, 2021.
 
 \bibitem{heess2017emergence}
-N.~Heess \emph{et~al.}, ``Emergence of locomotion behaviours in rich
-  environments,'' arXiv preprint arXiv:1707.02286, 2017.
+N.~Heess \emph{et~al.}, ``Emergence of locomotion behaviours in rich environments,'' arXiv preprint arXiv:1707.02286, 2017.
 
 \bibitem{peng2018deepmimic}
-X.~B. Peng, P.~Abbeel, S.~Levine, and M.~van~de Panne, ``{DeepMimic}:
-  Example-guided deep reinforcement learning of physics-based character
-  skills,'' \emph{ACM Transactions on Graphics}, vol.~37, no.~4, pp.
-  143:1--143:14, 2018.
+X.~B. Peng \emph{et~al.}, ``{DeepMimic}: Example-guided deep reinforcement learning of physics-based character skills,'' \emph{ACM Transactions on Graphics}, vol.~37, no.~4, pp. 143:1--143:14, 2018.
 
 \bibitem{hwangbo2019agile}
-J.~Hwangbo \emph{et~al.}, ``Learning agile and dynamic motor skills for legged
-  robots,'' \emph{Science Robotics}, vol.~4, no.~26, p. eaau5872, 2019.
+J.~Hwangbo \emph{et~al.}, ``Learning agile and dynamic motor skills for legged robots,'' \emph{Science Robotics}, vol.~4, no.~26, p. eaau5872, 2019.
 
 \bibitem{lee2020learning}
-J.~Lee, J.~Hwangbo, L.~Wellhausen, V.~Koltun, and M.~Hutter, ``Learning
-  quadrupedal locomotion over challenging terrain,'' \emph{Science Robotics},
-  vol.~5, no.~47, p. eabc5986, 2020.
+J.~Lee \emph{et~al.}, ``Learning quadrupedal locomotion over challenging terrain,'' \emph{Science Robotics}, vol.~5, no.~47, p. eabc5986, 2020.
 
 \bibitem{miki2022wild}
-T.~Miki, J.~Lee, J.~Hwangbo, L.~Wellhausen, V.~Koltun, and M.~Hutter,
-  ``Learning robust perceptive locomotion for quadrupedal robots in the wild,''
-  \emph{Science Robotics}, vol.~7, no.~62, p. eabk2822, 2022.
+T.~Miki \emph{et~al.}, ``Learning robust perceptive locomotion for quadrupedal robots in the wild,'' \emph{Science Robotics}, vol.~7, no.~62, p. eabk2822, 2022.
 
 \bibitem{rudin2022minutes}
-N.~Rudin, D.~Hoeller, P.~Reist, and M.~Hutter, ``Learning to walk in minutes
-  using massively parallel deep reinforcement learning,'' in \emph{Proc. 5th
-  Conf. Robot Learning (CoRL)}, 2022, pp. 91--100.
+N.~Rudin \emph{et~al.}, ``Learning to walk in minutes using massively parallel deep reinforcement learning,'' in \emph{Proc. 5th Conf. Robot Learning (CoRL)}, 2022, pp. 91--100.
 
 \bibitem{makoviychuk2021isaac}
-V.~Makoviychuk \emph{et~al.}, ``{Isaac Gym}: High performance {GPU}-based
-  physics simulation for robot learning,'' arXiv preprint arXiv:2108.10470,
-  2021.
+V.~Makoviychuk \emph{et~al.}, ``{Isaac Gym}: High performance {GPU}-based physics simulation for robot learning,'' arXiv preprint arXiv:2108.10470, 2021.
 
 \bibitem{siekmann2021stairs}
-J.~Siekmann, K.~Green, J.~Warila, A.~Fern, and J.~Hurst, ``Blind bipedal stair
-  traversal via sim-to-real reinforcement learning,'' in \emph{Robotics:
-  Science and Systems XVII (RSS)}, 2021.
+J.~Siekmann \emph{et~al.}, ``Blind bipedal stair traversal via sim-to-real reinforcement learning,'' in \emph{Robotics: Science and Systems XVII (RSS)}, 2021.
 
 \bibitem{radosavovic2024humanoid}
-I.~Radosavovic, T.~Xiao, B.~Zhang, T.~Darrell, J.~Malik, and K.~Sreenath,
-  ``Real-world humanoid locomotion with reinforcement learning,'' \emph{Science
-  Robotics}, vol.~9, no.~89, p. eadi9579, 2024.
+I.~Radosavovic \emph{et~al.}, ``Real-world humanoid locomotion with reinforcement learning,'' \emph{Science Robotics}, vol.~9, no.~89, p. eadi9579, 2024.
 
 \bibitem{ng1999shaping}
-A.~Y. Ng, D.~Harada, and S.~Russell, ``Policy invariance under reward
-  transformations: Theory and application to reward shaping,'' in \emph{Proc.
-  16th Int. Conf. Machine Learning (ICML)}, 1999, pp. 278--287.
+A.~Y. Ng, D.~Harada, and S.~Russell, ``Policy invariance under reward transformations: Theory and application to reward shaping,'' in \emph{Proc. 16th Int. Conf. Machine Learning (ICML)}, 1999, pp. 278--287.
 
 \bibitem{henderson2018matters}
-P.~Henderson, R.~Islam, P.~Bachman, J.~Pineau, D.~Precup, and D.~Meger, ``Deep
-  reinforcement learning that matters,'' in \emph{Proc. 32nd AAAI Conf.
-  Artificial Intelligence}, 2018, pp. 3207--3214.
+P.~Henderson \emph{et~al.}, ``Deep reinforcement learning that matters,'' in \emph{Proc. 32nd AAAI Conf. Artificial Intelligence}, 2018, pp. 3207--3214.
 
 \bibitem{agarwal2021precipice}
-R.~Agarwal, M.~Schwarzer, P.~S. Castro, A.~Courville, and M.~G. Bellemare,
-  ``Deep reinforcement learning at the edge of the statistical precipice,'' in
-  \emph{Adv. Neural Information Processing Systems (NeurIPS)}, 2021.
+R.~Agarwal \emph{et~al.}, ``Deep reinforcement learning at the edge of the statistical precipice,'' in \emph{Adv. Neural Information Processing Systems (NeurIPS)}, 2021.
 
 \bibitem{bengio2009curriculum}
-Y.~Bengio, J.~Louradour, R.~Collobert, and J.~Weston, ``Curriculum learning,''
-  in \emph{Proc. 26th Int. Conf. Machine Learning (ICML)}, 2009, pp. 41--48.
-
-\bibitem{haarnoja2018sac}
-T.~Haarnoja, A.~Zhou, P.~Abbeel, and S.~Levine, ``Soft actor-critic: Off-policy
-  maximum entropy deep reinforcement learning with a stochastic actor,'' in
-  \emph{Proc. 35th Int. Conf. Machine Learning (ICML)}, 2018, pp. 1861--1870.
-
-\bibitem{bou2024torchrl}
-A.~Bou \emph{et~al.}, ``{TorchRL}: A data-driven decision-making library for
-  {PyTorch},'' in \emph{International Conference on Learning Representations
-  (ICLR)}, 2024.
+Y.~Bengio \emph{et~al.}, ``Curriculum learning,'' in \emph{Proc. 26th Int. Conf. Machine Learning (ICML)}, 2009, pp. 41--48.
 
 \end{thebibliography}

@@ -14,8 +14,8 @@
 \usepackage{booktabs}
 \usepackage{threeparttable}
 
-% Figures live in ../images and ../figures relative to this template directory.
-\graphicspath{{../}{../images/}{../figures/}}
+% Figures live in images/ and figures/ at the project root.
+\graphicspath{{images/}{figures/}}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -395,6 +395,6 @@ All final results come from a single training seed per task; given known seed se
 These limitations chart a clear path forward: the immediate next step is a multi-seed training campaign, including a training-time termination ablation to complement the evaluation-time one reported here, followed by replacing the privileged height grids with depth-based perception, domain randomization over terrain geometry, and skill-preservation mechanisms (modular or constrained policies) for multi-task learning. We open-source all environments, configurations, and evaluation scripts to support these further developments.
 
 \bibliographystyle{IEEEtran}
-\bibliography{../references}
+\bibliography{references}
 
 \end{document}

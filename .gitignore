@@ -9,6 +9,10 @@ multirun/
 *.pkl
 .DS_Store
 
+# Scratch/backup files
+tmp/
+*.bak*
+
 # LaTeX build artifacts
 *.aux
 *.log
