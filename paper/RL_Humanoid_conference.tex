@@ -11,6 +11,7 @@
 
 % --- Additional packages required by this paper's content ---
 \usepackage[hidelinks]{hyperref}
+\usepackage{bookmark}
 \usepackage{booktabs}
 \usepackage{threeparttable}
 
@@ -21,12 +22,6 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 \setcounter{secnumdepth}{3}
-
-% Tighter float spacing for the camera-ready page budget
-\setlength{\textfloatsep}{8pt plus 2pt minus 3pt}
-\setlength{\dbltextfloatsep}{8pt plus 2pt minus 3pt}
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
 
 \begin{document}
 
@@ -63,7 +58,7 @@ pedro.aguiar@fe.up.pt}
 \bstctlcite{IEEEexample:BSTcontrol}
 
 \begin{abstract}
-Humanoid locomotion is a challenging reinforcement learning problem due to high-dimensional actuation, intermittent contacts, and strong sensitivity to task and environment design. While policy-gradient methods such as Proximal Policy Optimization (PPO) reliably learn flat-ground walking, extending the same recipe to uneven terrain and long-horizon navigation frequently fails in practice, and the causes are often implementation-level rather than algorithmic. We present an empirical case study of two such design choices (reward alignment and episode-termination logic) using the MuJoCo Humanoid across four tasks of increasing difficulty: flat locomotion, stair climbing, waypoint-based circuit navigation, and circuits with stair segments. Task-aligned shaping (height progress and step milestones) yields a stair-climbing policy that reaches the top step in 96\% of evaluation episodes with the smallest training budget of all four tasks. A controlled ablation shows fixed world-frame termination bounds truncating episodes of healthy agents on elevated terrain; consistent with this mechanism, on the combined circuit-with-stairs task none of nine development runs trained under such bounds learned stair traversal, whereas a terrain-relative health check enabled 87\% circuit completion. All results come from single-training-seed runs with 100-episode evaluations and a five-seed evaluation-robustness sweep; environments, training configurations, and evaluation scripts are publicly released.
+Humanoid locomotion is a challenging reinforcement learning problem due to high-dimensional actuation, intermittent contacts, and strong sensitivity to task and environment design. While policy-gradient methods such as Proximal Policy Optimization (PPO) reliably learn flat-ground walking, extending the same recipe to uneven terrain and long-horizon navigation frequently fails in practice, and the causes are often implementation-level rather than algorithmic. We present an empirical case study of two such design choices (reward alignment and episode-termination logic) using the MuJoCo Humanoid across four tasks of increasing difficulty: flat locomotion, stair climbing, waypoint-based circuit navigation, and circuits with stair segments. Task-aligned shaping (height progress and step milestones) yields a stair-climbing policy that reaches the top step in 96\% of evaluation episodes with the smallest training budget of all four tasks. A controlled ablation shows fixed world-frame health bounds terminating episodes of healthy agents on elevated terrain; consistent with this mechanism, on the combined circuit-with-stairs task none of nine development runs trained under such bounds learned stair traversal, whereas a terrain-relative health check enabled 87\% circuit completion. All results come from single-training-seed runs with 100-episode evaluations and a five-seed evaluation-robustness sweep; environments, training configurations, and evaluation scripts are publicly released.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -80,8 +75,8 @@ This paper presents an empirical study of how reward design and episode-terminat
 \begin{itemize}
     \item Two custom, fully parameterized MuJoCo benchmark environments for humanoid locomotion: a configurable stair-climbing task and a waypoint-based circuit-navigation task with optional stair segments.
     \item A systematic investigation of reward shaping and termination design through four PPO-based task configurations (S1--S4), progressively introducing terrain-aware observations, task-aligned rewards, navigation objectives, and terrain-relative health checks.
-    \item Experimental evidence that episode-termination logic can determine learning success on uneven terrain: controlled ablations show that fixed world-frame health bounds can prematurely terminate healthy agents on elevated terrain, while terrain-relative termination enables successful stair traversal and circuit completion, reaching up to 87\% completion on the combined navigation-and-stairs task.
-    \item A reproducible evaluation methodology based on 100-episode success-rate evaluations for every task, demonstrating up to 96\% stair-climbing success and providing openly available environments, training configurations, and evaluation scripts for future comparison and benchmarking.
+    \item Experimental evidence that episode-termination logic can determine learning success on uneven terrain: a controlled evaluation-time ablation shows fixed world-frame health bounds spuriously terminating healthy agents on elevated terrain, and, consistent with this mechanism, none of nine development runs trained under such bounds learned stair traversal, whereas terrain-relative termination enabled up to 87\% completion on the combined navigation-and-stairs task.
+    \item A reproducible evaluation methodology based on 100-episode success-rate evaluations for every task, demonstrating up to 96\% stair-climbing success and providing openly available environments, training configurations, and evaluation scripts for future benchmarking.
 \end{itemize}
 For reproducibility, the full implementation (environments, training and evaluation scripts, and the exact per-run configurations) is publicly available at \url{https://github.com/joao-viterbo-vieira/RL-Humanoid}.
 
@@ -101,6 +96,13 @@ We formalize each task as a Markov Decision Process (MDP) $(\mathcal{S}, \mathca
 
 Learning seeks the parameters $\theta$ that maximize the expected discounted return $\mathbb{E}_{\pi_\theta}\!\left[\sum_{t=0}^{\infty} \gamma^{t}\, r(s_t, a_t)\right]$, with discount $\gamma = 0.99$. The state-value function $V^{\pi}(s)$ is the expected return obtained by following $\pi$ from state $s$, and the action-value function $Q^{\pi}(s,a)$ the expected return of taking action $a$ in $s$ and following $\pi$ thereafter~\cite{sutton2018reinforcement}. The PPO update (Section~\ref{sec:ppo}) is driven by a sampled estimate $\hat{A}_t$ of the advantage $A^{\pi}(s,a) = Q^{\pi}(s,a) - V^{\pi}(s)$, which quantifies how much taking action $a$ in state $s$ improves on the policy's average behavior; $V^{\pi}$ is approximated by a critic network acting as a variance-reducing baseline.
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.60\linewidth]{images/action_space.png}
+    \caption{Action space: the 17 torque-controlled joints of the MuJoCo Humanoid. Adapted from the Gymnasium documentation~\cite{towers2024gymnasium}.}
+    \label{fig:action_space}
+\end{figure}
+
 \subsubsection{Simplified Robot Model and Task Variables}
 \label{sec:robot_model}
 The humanoid is a torque-actuated articulated body, but apart from generic effort and contact-force penalties, all task-level quantities (reward terms and health checks) are defined on a reduced model of the torso alone. In a fixed world frame, the torso carries a position $\mathbf{p}_t = [x_t,\, y_t,\, z_t]^{\top}$, with height $z_t$, and an orientation given by the roll, pitch, and yaw angles $(\phi_t, \theta_t, \psi_t)$ extracted from the torso quaternion; the yaw $\psi_t$ defines the heading (the time-indexed $\theta_t$ denotes pitch, distinct from the policy parameters $\theta$). The planar linear velocity $\mathbf{v}_t = [\dot{x}_t,\, \dot{y}_t]^{\top}$ is the linear velocity of the torso root joint, read directly from the simulator state as the time derivative of $\mathbf{p}_t$; the flat-locomotion baseline instead follows the standard Gymnasium convention of finite-differencing the whole-body center of mass over the control interval. Relative to the heading, $\mathbf{v}_t$ decomposes into a component along the direction the agent faces and a component normal to it:
@@ -117,12 +119,7 @@ At each control step $t$ the agent receives an observation $o_t$ used as the sta
 \subsubsection{Action Space}
 The action space is continuous, $a_t \in \mathbb{R}^{17}$: motor commands bounded by $[-0.4, 0.4]$ (dimensionless; mapped to joint torques via per-actuator gear ratios of 25--300) for the 17 actuated hinge joints of the humanoid (3 abdomen, 3 per hip, 1 per knee, 2 per shoulder, 1 per elbow; Fig.~\ref{fig:action_space}).
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.60\linewidth]{images/action_space.png}
-    \caption{Action space: the 17 torque-controlled joints of the MuJoCo Humanoid.}
-    \label{fig:action_space}
-\end{figure} All environments use a physics timestep of $0.003$\,s with frame skip 5, i.e., a control interval of $dt = 0.015$\,s ($\approx 66.7$\,Hz).
+All environments use a physics timestep of $0.003$\,s with frame skip 5, i.e., a control interval of $dt = 0.015$\,s ($\approx 66.7$\,Hz).
 
 \subsubsection{Episode Termination}
 \label{sec:termination}
@@ -146,7 +143,7 @@ where $h(x_t, y_t)$ is the terrain height at the agent's planar position.
 We study four tasks of increasing difficulty (Fig.~\ref{fig:task_suite}):
 \begin{enumerate}
     \item \textbf{S1, Flat locomotion:} forward walking on flat ground (\texttt{Humanoid-v5}), the standard Gymnasium benchmark plus the shared shaping wrapper of Eq.~\eqref{eq:total_reward}, used as a control condition.
-    \item \textbf{S2, Stair climbing:} ascend a staircase (\texttt{HumanoidStairsConfigurable-v0}), parameterized by approach distance, number of steps, step height/depth, and top platform. The reported run uses 8 steps of height $0.10$\,m and depth $0.8$\,m; development runs spanned 8--15 steps and heights $0.10$--$0.20$\,m. An episode is successful if the agent reaches the top step.
+    \item \textbf{S2, Stair climbing:} ascend a staircase (\texttt{Humanoid\allowbreak Stairs\allowbreak Configurable-v0}), parameterized by approach distance, number of steps, step height/depth, and top platform. The reported run uses 8 steps of height $0.10$\,m and depth $0.8$\,m; development runs spanned 8--15 steps and heights $0.10$--$0.20$\,m. An episode is successful if the agent reaches the top step.
     \item \textbf{S3, Circuit navigation (flat):} visit a sequence of planar waypoints in order (\texttt{HumanoidCircuit-v0}). The reported course has four waypoints forming a rectangular loop with three turns; success requires reaching all waypoints.
     \item \textbf{S4, Circuit with stairs:} the same environment with a three-waypoint course that includes a five-step stair segment ($0.10$\,m rise) between the first two waypoints.
 \end{enumerate}
@@ -199,7 +196,7 @@ All configurations share the proprioceptive base observation. Task-specific augm
 \label{eq:terrain_grid}
 g_t(i,j) = h(x_t + \delta_i,\, y_t + \delta_j) - z_t,
 \end{equation}
-with fixed world-frame offsets $\delta_i, \delta_j \in \{-0.6, -0.3, 0, 0.3, 0.6\}$\,m; heights are encoded relative to the agent's current $z_t$.
+where the offsets $\delta_i, \delta_j$ take the fixed world-frame values $\{-0.6, -0.3, 0, 0.3, 0.6\}$\,m; heights are encoded relative to the agent's current $z_t$.
 
 \subsubsection{Waypoint Features (S3, S4)} Navigation state is a 5-dimensional vector
 \begin{equation}
@@ -238,7 +235,7 @@ The reward optimized by PPO is a task-specific environment reward $r_t^{\mathrm{
 \label{eq:total_reward}
 r_t^{\mathrm{total}} = r_t^{\mathrm{env}} - \underbrace{w_e \|a_t\|_2^2}_{\text{effort}} - \underbrace{w_\ell |y_t|}_{\text{lateral}},
 \end{equation}
-where $y_t$ is the lateral offset of Section~\ref{sec:robot_model}, penalizing world-frame drift from the corridor centerline $y{=}0$. Table~\ref{tab:reward_terms} collects every weight and task-specific value of this section; the prose below only defines the terms.
+where $y_t$ is the lateral offset of Section~\ref{sec:robot_model}, penalizing world-frame drift from the corridor centerline $y{=}0$. The effort term overlaps the control cost already inside each $r_t^{\mathrm{env}}$ ($w_e \ll w_c$); like the lateral term, it is retained in every configuration for comparability across tasks. Table~\ref{tab:reward_terms} collects every weight and task-specific value of this section; the prose below only defines the terms.
 
 \subsubsection{S1: Baseline} The standard \texttt{Humanoid-v5} reward,
 \begin{equation}
@@ -259,7 +256,7 @@ where $r_t^{\mathrm{height}} = w_z \max(0, z_t - z_{t-1})$ rewards upward progre
 \label{eq:s3_reward}
 r_t^{\mathrm{env}} = r_t^{\mathrm{prog}} + r_t^{\mathrm{dir}} + r_t^{\mathrm{head}} + r_t^{\mathrm{bal}} + r_t^{\mathrm{speed}} \\ + r_t^{\mathrm{bonus}} + r_t^{\mathrm{healthy}} - c_t^{\mathrm{ctrl}} - c_t^{\mathrm{cf}},
 \end{multline}
-with progress $r_t^{\mathrm{prog}} = w_p (d_{t-1} - d_t)$, where $d_t$ is the planar distance to the active waypoint; directional velocity $r_t^{\mathrm{dir}} = w_f \max(0, \mathbf{v}_t \!\cdot\! \hat{\mathbf{u}}_t)$, projecting the planar velocity of Section~\ref{sec:robot_model} onto the unit direction $\hat{\mathbf{u}}_t$ to the waypoint; heading alignment $r_t^{\mathrm{head}} = w_\psi \cos(\epsilon_t) \min(\lVert\mathbf{v}_t\rVert, 2)$, which for velocity aligned with the heading equals the saturated velocity component toward the waypoint (both terms active only beyond $0.1$\,m of the waypoint); and sparse bonuses $r_t^{\mathrm{bonus}} = b_{\mathrm{wp}} \mathbb{I}[d_t < \tau] + b_{\mathrm{circ}} \mathbb{I}[\text{all waypoints reached}]$ for entering the active waypoint's reach radius $\tau$ and for completing the course. Two regularizers stabilize multi-objective learning:
+with progress $r_t^{\mathrm{prog}} = w_p (d_{t-1} - d_t)$, where $d_t$ is the planar distance to the active waypoint; directional velocity $r_t^{\mathrm{dir}} = w_d \max(0, \mathbf{v}_t \!\cdot\! \hat{\mathbf{u}}_t)$, projecting the planar velocity of Section~\ref{sec:robot_model} onto the unit direction $\hat{\mathbf{u}}_t$ to the waypoint; heading alignment $r_t^{\mathrm{head}} = w_\psi \cos(\epsilon_t) \min(\lVert\mathbf{v}_t\rVert, 2)$, which for velocity aligned with the heading equals the saturated velocity component toward the waypoint (both terms active only beyond $0.1$\,m of the waypoint); and sparse bonuses $r_t^{\mathrm{bonus}} = b_{\mathrm{wp}} \mathbb{I}[d_t < \tau] + b_{\mathrm{circ}} \mathbb{I}[\text{all waypoints reached}]$ for entering the active waypoint's reach radius $\tau$ and for completing the course. Two regularizers stabilize multi-objective learning:
 \begin{equation}
 \label{eq:s3_balance_speed}
 r_t^{\mathrm{bal}} = w_b \cos\!\Big(\sqrt{\phi_t^2 + \theta_t^2}\Big), \quad
@@ -284,7 +281,7 @@ Forward velocity & $w_f$ & 1.25 & 2 & --- & --- \\
 Height progress & $w_z$ & --- & 8 & --- & 2 \\
 Step milestone & $b_s$ & --- & 5 & --- & --- \\
 Waypoint progress & $w_p$ & --- & --- & 200 & 200 \\
-Directional velocity & $w_f$ & --- & --- & 1 & 1 \\
+Directional velocity & $w_d$ & --- & --- & 1 & 1 \\
 Heading alignment & $w_\psi$ & --- & --- & 2 & 2 \\
 Balance & $w_b$ & --- & --- & 0.5 & 0.5 \\
 Speed regulation & $w_v$ & --- & --- & 0.2 & 0.2 \\
@@ -361,7 +358,7 @@ To isolate the termination mechanism under controlled conditions, we re-evaluate
 
 \begin{table}[t]
 \centering
-\caption{Evaluation-time termination ablation: trained S2/S4 policies re-evaluated for 100 episodes under each rule. World-frame bounds fire on elevated terrain, truncating S2 well short of a fall.}
+\caption{Evaluation-time termination ablation: trained S2/S4 policies re-evaluated for 100 episodes under each rule. World-frame bounds fire on elevated terrain, terminating S2 episodes well short of a fall.}
 \label{tab:term_ablation}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -391,10 +388,11 @@ The second factor is termination logic: the controlled ablation of Section~\ref{
 
 \subsection{Limitations and Future Work}
 \label{sec:limitations}
-All final results come from a single training seed per task; given known seed sensitivity in deep RL~\cite{henderson2018matters,agarwal2021precipice}, the quantitative values should be read as a documented case study rather than population estimates (the five-seed sweep in Table~\ref{tab:final_runs} probes evaluation noise only, not training-seed variance), and the termination finding as a combination of repeated development-run observations and the controlled evaluation-time ablation of Table~\ref{tab:term_ablation}. Each run required roughly 3 hours, and iterating rewards and hyperparameters across four tasks consumed the available budget (Section~\ref{sec:results}), precluding per-task sweeps.
+All final results come from a single training seed per task; given known seed sensitivity in deep RL~\cite{henderson2018matters,agarwal2021precipice}, the quantitative values should be read as a documented case study rather than population estimates (the five-seed sweep in Table~\ref{tab:final_runs} probes evaluation noise only, not training-seed variance), and the termination finding as a combination of repeated development-run observations and the controlled evaluation-time ablation of Table~\ref{tab:term_ablation}. Each run required a few hours of training, and iterating rewards and hyperparameters across four tasks consumed the available budget (Section~\ref{sec:results}), precluding per-task sweeps.
 
 These limitations chart a clear path forward: the immediate next step is a multi-seed training campaign, including a training-time termination ablation to complement the evaluation-time one reported here, followed by replacing the privileged height grids with depth-based perception, domain randomization over terrain geometry, and skill-preservation mechanisms (modular or constrained policies) for multi-task learning. We open-source all environments, configurations, and evaluation scripts to support these further developments.
 
+\IEEEtriggeratref{8}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 

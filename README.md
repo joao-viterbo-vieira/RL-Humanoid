@@ -6,8 +6,6 @@ Reinforcement learning training for humanoid agents with **4 different locomotio
 **Configuration:** Hydra
 **Environments:** Custom Gymnasium/MuJoCo environments
 
-> **Note:** TorchRL and SAC were used only for initial experiments. All main training and results use Stable-Baselines3 with PPO. See [Extras](#-extras-sac--torchrl) for running these alternative approaches.
-
 ---
 
 ## 📄 Paper
