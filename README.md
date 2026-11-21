@@ -1,682 +1,216 @@
-﻿# 🤖 RL Humanoid Locomotion
+﻿# Reward Shaping and Terrain-Relative Termination for PPO Humanoid Locomotion Beyond Flat Ground
 
-Reinforcement learning training for humanoid agents with **4 different locomotion tasks** of increasing complexity.
+**João Viterbo Vieira · Francisco Pinto · José Pedro Carvalho · António Pedro Aguiar**
+Faculty of Engineering, University of Porto (FEUP) · SYSTEC-ARISE
 
-**Primary Framework:** Stable-Baselines3 (SB3) with PPO
-**Configuration:** Hydra
-**Environments:** Custom Gymnasium/MuJoCo environments
+Official code, trained models and evaluation scripts for our **ROBOT2026** paper.
 
----
+📄 [**Paper (PDF)**](paper/RL_Humanoid_conference.pdf) · 🎞️ [**Slides**](ROBOT2026_presentation/paper%20robot2026.pdf) · 🎬 [**Videos**](best_videos/)
 
-## 📄 Paper
-
-The accompanying 6-page conference paper lives in [`paper/`](paper/) — a self-contained folder (compiles standalone, ready to zip for Overleaf):
-
-- **Compiled PDF:** [`paper/RL_Humanoid_conference.pdf`](paper/RL_Humanoid_conference.pdf)
-- **LaTeX source:** [`paper/RL_Humanoid_conference.tex`](paper/RL_Humanoid_conference.tex), with [`paper/references.bib`](paper/references.bib), `IEEEtran.cls`/`IEEEtran.bst`, and the figures it uses in `paper/figures/` and `paper/images/`
-- **Training-curve figures** are regenerated with [`scripts/plot_training_curves.py`](scripts/plot_training_curves.py) (outputs to [`figures/`](figures/); copy the updated `combined_training_curves.pdf` into `paper/figures/` when it changes)
+![The four tasks: flat locomotion, stair climbing, circuit navigation, and circuit with stairs](images/task_suite_environments.png)
 
 ---
 
-## 🎯 Environments
+## Description
 
-This project includes **7 locomotion environments** with progressive difficulty:
+Standard PPO reliably teaches the MuJoCo Humanoid to walk on flat ground, but the same recipe often fails on stairs and long-horizon navigation. This repository is an empirical case study showing that the causes are frequently **implementation-level rather than algorithmic**. We isolate two design choices:
 
-### Base Environments
+1. **Reward alignment.** Forward-velocity rewards do not describe progress on stairs. Adding height-progress and step-milestone terms makes stair climbing the most reliably solved task, with the smallest training budget.
+2. **Episode-termination logic.** The usual "healthy" check bounds the torso height in a fixed world frame, which terminates episodes of perfectly healthy agents as soon as they stand on elevated terrain. Measuring the height **relative to the terrain under the agent** (`z_rel = z − h(x, y)`) was the single change that made the combined circuit-with-stairs task learnable.
 
-| Environment | Type | Difficulty | Observation Dims | Task |
-|-------------|------|------------|------------------|------|
-| **Walker2d-v5** | Built-in | ⭐ Easy | 17 | 2D bipedal walking |
-| **Humanoid-v5** | Built-in | ⭐⭐ Medium | 376 | 3D forward walking |
+The repository contains two custom, fully parameterized Gymnasium/MuJoCo environments (configurable stairs and waypoint circuits with optional stair segments), the Hydra training configurations, the four trained policies reported in the paper, and the scripts that reproduce every number in it.
 
-### Challenge Environments
+## Results
 
-| Environment | Difficulty | Observation Dims | Task Description |
-|-------------|------------|------------------|------------------|
-| **HumanoidDestination-v0** | ⭐⭐⭐ Hard | **378** | Navigate to target (10m, 0m) - terminates on success |
-| **HumanoidStairs-v0** | ⭐⭐⭐ Hard | **401** | Climb fixed 10-step staircase with 5×5 height grid |
-| **HumanoidStairsConfigurable-v0** | ⭐⭐⭐⭐ Very Hard | **401** | Configurable stairs (height, depth, count, abyss) |
-| **HumanoidCircuit-v0** | ⭐⭐⭐⭐⭐ Expert | **406** | Navigate waypoints + climb multiple staircases |
+All policies are trained with PPO (Stable-Baselines3), one training seed (42) per task, and evaluated for 100 episodes with a held-out evaluation seed and a deterministic policy.
 
-### Observation Space Details
+| Task | Environment | Train steps | Reward | Success | 5-seed sweep |
+|------|-------------|-------------|--------|---------|--------------|
+| **S1** Flat locomotion | `Humanoid-v5` | 50M | 8,429 ± 2,320 | 84% | 80 ± 5% |
+| **S2** Stair climbing | `HumanoidStairsConfigurable-v0` | 30M | 15,760 ± 1,868 | **96%** | 92 ± 3% |
+| **S3** Circuit (flat) | `HumanoidCircuit-v0` | 80M | 6,949 ± 1,537 | 47% | 54 ± 5% |
+| **S4** Circuit + stairs | `HumanoidCircuit-v0` | 80M | 10,134 ± 2,421 | **87%** | 81 ± 5% |
 
-- **Base Humanoid (376):** Position, velocity, COM inertia/velocity, actuator forces, contact forces
-- **+2 (Destination):** Relative vector to target position (dx, dy)
-- **+25 (Stairs/Circuit):** 5×5 height grid for terrain perception (0.3m spacing, agent-centered)
-- **+5 (Circuit):** Waypoint vector (2), progress (1), heading error sin/cos (2)
+Success is task-defined: no fall over the full 1000-step horizon (S1), reaching the top step (S2), reaching all waypoints (S3/S4). The sweep column is the mean ± s.d. of the success rate over five additional evaluation seeds (0–4).
 
-📖 **[See detailed observation space documentation →](docs/OBSERVATION_SPACES.md)**
+**Termination matters.** Under fixed world-frame health bounds, none of nine development runs (~520M steps) learned to traverse the stair segment of S4; with the terrain-relative check it reaches 87% completion. An evaluation-time ablation confirms the mechanism: on S2, the world-frame check cuts the mean episode length from 960 to 645 steps, and every one of those terminations happens while the agent is standing upright on the elevated platform.
 
-### Pre-configured Variants
+![Training curves of the four final runs](figures/combined_training_curves.png)
 
-**Stairs Configurations:**
-- `humanoid_stairs_easy` - Lower, longer steps (8 steps, 10cm height)
-- `humanoid_stairs_hard` - Steeper stairs (12 steps, 18cm height)
-- `humanoid_stairs_short` - 5m approach (quick iterations)
-- `humanoid_stairs_tiny` - 20 small steps (7.5cm each)
-- `humanoid_stairs_abyss` - Must stop at top (no platform)
-- `humanoid_stairs_updown` - Climb then descend
-
-**Circuit Configurations:**
-- `humanoid_circuit_flat` - 3 waypoints, no stairs
-- `humanoid_circuit_simple` - 4 waypoints, 2 stair sections
-- `humanoid_circuit_easy` - 3 waypoints, 1 gentle stair
-- `humanoid_circuit_complex` - 6 waypoints with turns, 3 varied stairs
-- `humanoid_circuit_custom` - 5 waypoints with waypoint 3 at stair top
-
-📖 **[See detailed environment documentation →](envs/README.md)**
+Videos of the four policies are in [`best_videos/`](best_videos/).
 
 ---
 
-## 📦 Installation
+## Installation
+
+Requires Python 3.10+.
 
 ```bash
-# Create virtual environment
+git clone https://github.com/joao-viterbo-vieira/RL-Humanoid.git
+cd RL-Humanoid
+
 python -m venv .venv
+source .venv/bin/activate        # Windows: .\.venv\Scripts\activate
 
-# Activate (Windows PowerShell)
-.\.venv\Scripts\activate
-
-# Activate (Linux/Mac)
-source .venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
----
+If MuJoCo rendering fails on Linux/macOS, set `export MUJOCO_GL=glfw`.
 
-## 🚀 Quick Start
+## Reproducing the paper
 
-**Note on Commands:** Examples below show PowerShell (Windows) syntax. For Linux/Mac bash, replace line continuation `` ` `` with `\`.
+The four reported checkpoints are tracked in [`outputs_best/`](outputs_best/) (model, normalization statistics, training log and Hydra config for each run), so every table can be regenerated without retraining.
 
-### 1. Train an Agent
+| Task | Run directory | Training config |
+|------|---------------|-----------------|
+| S1 | `outputs_best/2025-10-28/17-47-25` | `env=humanoid` |
+| S2 | `outputs_best/2025-12-06/17-36-50` | `env=humanoid_stairs_easy` |
+| S3 | `outputs_best/2025-12-23/14-37-50` | `env=humanoid_circuit_flat` |
+| S4 | `outputs_best/2025-12-24/16-29-37` | `env=humanoid_circuit_easy` |
 
-**Basic Environments:**
-```powershell
-# Train Walker2d (baseline, 1M steps)
-python scripts/train/train_sb3.py env=walker2d
+**Success rates (Table IV).** Each environment is rebuilt from the run's own `.hydra/config.yaml`, so the policies are evaluated on exactly the geometry and rewards they were trained on:
 
-# Train standard Humanoid (10M steps)
-python scripts/train/train_sb3.py env=humanoid training.total_timesteps=10000000
+```bash
+python scripts/evaluate/evaluate_paper_stats.py --episodes 100 --seed 123
+python scripts/evaluate/evaluate_paper_stats.py --only S2,S4      # subset of tasks
 ```
 
-**Destination Navigation:**
-```powershell
-# Navigate to target position (20M steps recommended)
-python scripts/train/train_destination.py training.total_timesteps=20000000
+**Five-seed robustness sweep** (results in `outputs_best/multiseed/`):
+
+```bash
+scripts/evaluate/run_multiseed.sh
 ```
 
-**Stairs Climbing:**
-```powershell
-# Original fixed stairs
-python scripts/train/train_sb3.py env=humanoid_stairs training.total_timesteps=10000000
+**Termination ablation (Table V)** — terrain-relative vs. world-frame health check on the trained S2 and S4 policies (results in `outputs_best/termination_ablation.json`):
 
-# Easy stairs (lower steps, good for learning)
-python scripts/train/train_sb3.py env=humanoid_stairs_easy training.total_timesteps=5000000
-
-# Hard stairs (steeper, more challenging)
-python scripts/train/train_sb3.py env=humanoid_stairs_hard training.total_timesteps=15000000
-
-# Custom configuration
-python scripts/train/train_sb3.py env=humanoid_stairs_configurable training.total_timesteps=10000000
+```bash
+python scripts/evaluate/evaluate_termination_ablation.py --episodes 100 --seed 123
 ```
 
-**Circuit Navigation:**
-```powershell
-# Simple circuit (4 waypoints, 2 stairs)
-python scripts/train/train_sb3.py env=humanoid_circuit_simple training.total_timesteps=20000000
+**Training curves (Fig. 3)** — needs `pandas` and `matplotlib` in addition to `requirements.txt`:
 
-# Complex circuit (6 waypoints with turns, 3 stairs)
-python scripts/train/train_sb3.py env=humanoid_circuit_complex training.total_timesteps=30000000
-
-# Custom circuit (5 waypoints, waypoint 3 on stair top)
-python scripts/train/train_sb3.py env=humanoid_circuit_custom training.total_timesteps=25000000
+```bash
+python scripts/plot_training_curves.py --outdir figures
 ```
 
-**Resume Training:**
-```powershell
-# PowerShell (Windows)
-python scripts/train/train_sb3.py env=humanoid_stairs_easy `
-  resume_from="outputs/2025-11-22/00-57-36/checkpoints/model_750000.zip" `
-  training.total_timesteps=5000000
+**Watch a policy.** [`how_to_use.txt`](how_to_use.txt) lists the exact render commands, including the `--env_kwargs` of each task. Its model paths start with `outputs/`; either replace that prefix with `outputs_best/` or copy the runs over with `cp -r outputs_best/* outputs/`. For example, the stair-climbing policy:
 
-# Bash (Linux/Mac)
+```bash
+python scripts/evaluate/evaluate_sb3.py \
+  --env_id HumanoidStairsConfigurable-v0 \
+  --model_path outputs_best/2025-12-06/17-36-50/eval/best_model.zip \
+  --vecnorm_path outputs_best/2025-12-06/17-36-50/vecnormalize_final.pkl \
+  --render --deterministic --episodes 5 \
+  --env_kwargs '{"flat_distance_before_stairs": 2.0, "num_steps": 8, "step_height": 0.1, "step_depth": 0.8, "end_platform_length": 5.0, "stairs_after_top": false, "end_with_abyss": false, "forward_reward_weight": 2.0, "height_reward_weight": 8.0, "ctrl_cost_weight": 0.1, "contact_cost_weight": 2e-07, "healthy_reward": 15.0, "step_bonus": 5.0, "lateral_penalty_weight": 0.3, "check_healthy_z_relative": true, "terminate_when_unhealthy": true, "healthy_z_range": [1.0, 2.0]}'
+```
+
+On Windows PowerShell, wrap the JSON in single quotes and escape the inner double quotes (`\"`).
+
+## Training from scratch
+
+Training uses Hydra; any parameter can be overridden on the command line. Outputs go to `outputs/<date>/<time>/`.
+
+```bash
+# S1 — flat locomotion
+python scripts/train/train_sb3.py env=humanoid training.total_timesteps=50000000
+
+# S2 — stair climbing (8 steps, 0.10 m rise, terrain-relative termination)
+python scripts/train/train_sb3.py env=humanoid_stairs_easy training.total_timesteps=30000000
+
+# S3 — flat circuit (4 waypoints, 3 turns)
+python scripts/train/train_sb3.py env=humanoid_circuit_flat training.total_timesteps=80000000
+
+# S4 — circuit with a 5-step stair segment (terrain-relative termination)
+python scripts/train/train_sb3.py env=humanoid_circuit_easy training.total_timesteps=80000000
+```
+
+Useful overrides and tools:
+
+```bash
+# Resume a run (restores the model and the VecNormalize statistics)
 python scripts/train/train_sb3.py env=humanoid_stairs_easy \
-  resume_from="outputs/2025-11-22/00-57-36/checkpoints/model_750000.zip" \
-  training.total_timesteps=5000000
-```
+  resume_from="outputs/<date>/<time>/checkpoints/model_750000.zip"
 
-### 2. Visualize Trained Agent
+# More parallel environments, different learning rate
+python scripts/train/train_sb3.py env=humanoid env.vec_env.n_envs=32 \
+  algo.hyperparams.learning_rate=2.5e-4
 
-**Live Rendering:**
-```powershell
-# View latest stairs training
-python scripts/evaluate/evaluate_sb3.py \
-  --env_id HumanoidStairsConfigurable-v0 \
-  --model_path "outputs/2025-11-22/00-57-36/checkpoints/model_750000.zip" \
-  --vecnorm_path "outputs/2025-11-22/00-57-36/checkpoints/vecnormalize_750000.pkl" \
-  --render --deterministic --episodes 5
-
-# View destination navigation
-python scripts/evaluate/evaluate_sb3.py \
-  --env_id HumanoidDestination-v0 \
-  --model_path "outputs/2025-11-21/21-03-31/checkpoints/model_28500000.zip" \
-  --vecnorm_path "outputs/2025-11-21/21-03-31/checkpoints/vecnormalize_28500000.pkl" \
-  --render --deterministic --episodes 3
-
-# View circuit navigation
-python scripts/evaluate/evaluate_sb3.py \
-  --env_id HumanoidCircuit-v0 \
-  --model_path "path/to/checkpoint.zip" \
-  --vecnorm_path "path/to/vecnormalize.pkl" \
-  --render --episodes 3
-```
-
-**Record Videos:**
-```powershell
-# Create video recordings
-python scripts/evaluate/evaluate_video.py \
-  --env_id HumanoidStairsConfigurable-v0 \
-  --model_path "outputs/2025-11-22/00-57-36/checkpoints/model_750000.zip" \
-  --vecnorm_path "outputs/2025-11-22/00-57-36/checkpoints/vecnormalize_750000.pkl" \
-  --video_dir "./videos/stairs" \
-  --episodes 3 \
-  --deterministic
-```
-
-### 3. Monitor Training
-
-**TensorBoard:**
-```powershell
-# PowerShell (Windows)
+# Monitor training
 tensorboard --logdir outputs
 ```
 
-```bash
-# Bash (Linux/Mac)
-tensorboard --logdir outputs
+## Environments
+
+| Environment | Obs. dims | Description |
+|-------------|-----------|-------------|
+| `Humanoid-v5` | 348 | Gymnasium flat-ground baseline |
+| `HumanoidStairsConfigurable-v0` | 401 | Staircase with configurable approach distance, step count, step height/depth and top platform |
+| `HumanoidCircuit-v0` | 406 | Ordered waypoints in a walled corridor, with optional stair segments |
+| `HumanoidStairs-v0` | 401 | Original fixed 10-step staircase |
+| `HumanoidDestination-v0` | 378 | Walk to a target position (not used in the paper) |
+
+- **Action space:** 17 joint torques, bounded in `[-0.4, 0.4]`, at a 66.7 Hz control rate.
+- **Terrain grid (+25):** 5×5 height samples around the agent at 0.3 m spacing, relative to the torso height.
+- **Waypoint features (+5):** displacement to the active waypoint (2), fraction of waypoints completed (1), heading error as sin/cos (2).
+- **Terrain-relative termination:** enabled with `check_healthy_z_relative: true` in the environment config.
+
+More stair and circuit variants (`humanoid_stairs_hard`, `humanoid_stairs_updown`, `humanoid_circuit_complex`, …) are available in [`conf/env/`](conf/env/). See [`envs/README.md`](envs/README.md) for details.
+
+## Repository structure
+
+```
+RL-Humanoid/
+├── paper/                    # ROBOT2026 paper (PDF)
+├── ROBOT2026_presentation/   # Conference slides (PDF and PPTX)
+├── envs/                     # Custom Gymnasium/MuJoCo environments
+│   ├── custom/               #   stairs, configurable stairs, circuit, destination
+│   └── assets/               #   MuJoCo XML models
+├── conf/                     # Hydra configuration
+│   ├── main.yaml             #   global settings (seed, VecNormalize, resume)
+│   ├── env/                  #   one file per task variant
+│   ├── algo/                 #   PPO (main), SAC (experimental)
+│   └── training/             #   training budgets
+├── scripts/
+│   ├── train/                # train_sb3.py (main), SAC and TorchRL variants
+│   ├── evaluate/             # paper statistics, ablation, rendering, videos
+│   ├── utils/                # debugging and visualization helpers
+│   └── plot_training_curves.py
+├── utils/                    # env factory, callbacks, reward wrappers
+├── outputs_best/             # The four reported runs and evaluation results
+├── best_videos/              # Videos of the four policies
+├── figures/, images/         # Paper figures
+├── docs/                     # Design notes, reward analysis, training log
+├── how_to_use.txt            # Exact train/eval commands for the four runs
+└── requirements.txt
 ```
 
-Open http://localhost:6006 to view training metrics, loss curves, and episode rewards.
+## Documentation
 
----
+- [Scripts reference](scripts/SCRIPTS_REFERENCE.md) — every training, evaluation and utility script
+- [Environments](envs/README.md) and [observation spaces](docs/OBSERVATION_SPACES.md)
+- [Reward functions analysis](docs/REWARD_FUNCTIONS_ANALYSIS.md)
+- [Configurable stairs](docs/CONFIGURABLE_STAIRS.md) and [circuit environment](docs/CIRCUIT_ENVIRONMENT.md)
+- [Training log](docs/TRAINING_LOG.md) — the 58 development runs (~2.6B environment steps) behind the paper
 
-## 📂 Project Structure
+The SAC and TorchRL scripts (`train_sac.py`, `train_torchrl.py`) are experimental and not part of the reported results.
 
-```
-rl-humanoid/
-├── envs/                           # Custom environments
-│   ├── README.md                  # Environment documentation
-│   ├── custom/                    # Custom environment implementations
-│   │   ├── humanoid_destination.py
-│   │   ├── humanoid_stairs.py
-│   │   ├── humanoid_stairs_configurable.py
-│   │   └── humanoid_circuit.py
-│   └── assets/                    # MuJoCo XML models
-│       ├── humanoid_destination.xml
-│       ├── humanoid_stairs.xml
-│       └── humanoid_circuit.xml
-├── scripts/                        # Training & evaluation scripts
-│   ├── SCRIPTS_REFERENCE.md       # Complete scripts functionality guide
-│   ├── README.md                  # Scripts documentation
-│   ├── train/                     # Training scripts
-│   │   ├── train_sb3.py          # Main SB3 trainer (Hydra config)
-│   │   ├── train_destination.py  # Destination navigation trainer
-│   │   ├── train_sac.py          # SAC trainer (experimental)
-│   │   └── train_torchrl.py      # TorchRL trainer (experimental)
-│   ├── evaluate/                  # Evaluation scripts
-│   │   ├── evaluate_sb3.py       # Main evaluation with rendering
-│   │   ├── evaluate_stats.py     # Statistical evaluation (headless)
-│   │   ├── evaluate_video.py     # Record MP4 videos
-│   │   ├── evaluate_sac.py       # SAC evaluation (experimental)
-│   │   ├── evaluate_torchrl.py   # TorchRL evaluation (experimental)
-│   │   └── evaluate_all.py       # Batch evaluate all models
-│   └── utils/                     # Utility scripts
-│       ├── evaluate_circuit_flat.py    # Quick circuit evaluation
-│       ├── evaluate_stairs_easy.py     # Quick stairs evaluation
-│       ├── check_waypoints.py          # Debug waypoint behavior
-│       ├── visualize_stairs_raw.py     # Visualize env (no model)
-│       ├── create_video_gallery.py     # HTML frame gallery
-│       ├── extract_frames.sh           # Extract frames from videos
-│       ├── run_2d.ps1                  # PowerShell evaluation wrapper
-│       ├── run_2dn.ps1                 # PowerShell evaluation variant
-│       └── tests/                      # Environment test files
-│           └── README.md
-├── conf/                           # Hydra configuration
-│   ├── main.yaml                  # Main config entry point
-│   ├── env/                       # Environment configs
-│   │   ├── humanoid.yaml
-│   │   ├── humanoid_sac.yaml     # SAC-specific config
-│   │   ├── humanoid_stairs_*.yaml
-│   │   └── humanoid_circuit_*.yaml
-│   ├── algo/                      # Algorithm configs
-│   │   ├── ppo.yaml              # PPO (main algorithm)
-│   │   └── sac.yaml              # SAC (experimental)
-│   └── training/                  # Training configs
-│       └── *.yaml
-├── utils/                          # Python utilities
-│   ├── make_env.py                # Environment creation
-│   ├── callbacks.py               # Training callbacks
-│   ├── vecnorm_io.py              # VecNormalize serialization
-│   ├── reward_wrappers.py         # Reward modification wrappers
-│   └── destination_wrapper.py     # Destination termination wrapper
-├── docs/                           # Documentation
-│   ├── OBSERVATION_SPACES.md      # Complete obs space breakdown
-│   ├── REWARD_FUNCTIONS_ANALYSIS.md  # Reward comparison
-│   ├── TRAINING_LOG.md            # 58 training experiments history
-│   ├── CONFIGURABLE_STAIRS.md     # Stairs parameterization
-│   ├── CIRCUIT_ENVIRONMENT.md     # Circuit navigation guide
-│   ├── STAIRS_HEIGHT_GRID_VISUALIZATION.md  # Height grid mechanics
-│   ├── STAIRS_USAGE.md            # Original stairs guide
-│   ├── walking_humanoid.md        # Destination walkthrough
-│   └── archive/                   # Historical documents
-│       ├── README.md              # Archive explanation
-│       ├── stairs_training_nov23-24.md
-│       ├── stairs_debugging_nov23.md
-│       ├── stairs_health_check_fix.md
-│       ├── training_summary_dec12.md
-│       └── evaluation_results_humanoid_oct28.txt
-├── examples/                       # Example scripts
-├── outputs/                        # SB3 training outputs (local)
-├── outputs_best/                   # Best models (tracked in git)
-│   └── 2025-XX-XX/                # Best model checkpoints
-├── outputs_destination/            # Destination training runs
-├── outputs_sac/                    # SAC training outputs (experimental)
-├── outputs_torchrl/                # TorchRL training outputs (experimental)
-├── videos/                         # Generated videos
-│   ├── circuit_flat_80m/
-│   ├── stairs_easy_10m/
-│   └── *.mp4
-├── best_videos/                    # Best result videos (tracked in git)
-├── how_to_use.txt                  # Best model commands reference
-├── INSPIRATION.md                  # Project inspiration
-├── requirements.txt                # Python dependencies
-└── README.md                       # This file
+## Limitations
+
+All final results come from a single training seed per task; the five-seed sweep measures evaluation noise only, not training-seed variance. The numbers should be read as a documented case study rather than population estimates. The terrain height grid is privileged simulator information, and no sim-to-real transfer is attempted.
+
+## Citation
+
+If you use this code or the environments, please cite:
+
+```bibtex
+@inproceedings{vieira2026humanoid,
+  title     = {Reward Shaping and Terrain-Relative Termination for {PPO} Humanoid Locomotion Beyond Flat Ground},
+  author    = {Vieira, Jo{\~a}o Viterbo and Pinto, Francisco and Carvalho, Jos{\'e} Pedro and Aguiar, Ant{\'o}nio Pedro},
+  booktitle = {ROBOT2026: Iberian Robotics Conference},
+  year      = {2026}
+}
 ```
 
-**Note on `outputs_best/`:**  
-This folder contains only the **4 best models** for each scenario and is tracked in git for easy sharing. After cloning the repository, copy the contents to your local `outputs/` folder to use these pre-trained models:
+## Acknowledgments
 
-```powershell
-# PowerShell (Windows)
-Copy-Item -Recurse outputs_best\* outputs\
-```
-
-```bash
-# Bash (Linux/Mac)
-cp -r outputs_best/* outputs/
-```
-
-## 📖 Documentation
-
-- **[Scripts Reference](scripts/SCRIPTS_REFERENCE.md)** - Complete functionality guide for all training, evaluation, and utility scripts
-- **[Environments](envs/README.md)** - Detailed environment documentation
-- **[Observation Spaces](docs/OBSERVATION_SPACES.md)** - Complete observation space breakdown for all environments
-- **[Reward Functions Analysis](docs/REWARD_FUNCTIONS_ANALYSIS.md)** - Detailed comparison of reward functions across all environments
-- **[Training Log](docs/TRAINING_LOG.md)** - Comprehensive history of 58 training experiments (Oct-Dec 2025)
-- **[Configurable Stairs](docs/CONFIGURABLE_STAIRS.md)** - Full stairs parameterization guide
-- **[Circuit Environment](docs/CIRCUIT_ENVIRONMENT.md)** - Waypoint navigation with obstacles
-- **[Stairs Height Grid](docs/STAIRS_HEIGHT_GRID_VISUALIZATION.md)** - 5×5 terrain perception mechanics
-- **[Stairs Usage](docs/STAIRS_USAGE.md)** - Original stairs environment guide
-- **[Walking Humanoid](docs/walking_humanoid.md)** - Destination task walkthrough
-
-### Archive
-
-Historical training reports and bug fixes are available in [docs/archive/](docs/archive/).
-
----
-
-## 🎓 Training Examples
-
-**Note:** Examples use PowerShell syntax. For Linux/Mac bash, replace `\` with `\` at line ends and activate venv with `source .venv/bin/activate`.
-
-### Walker2d (Baseline)
-
-**PowerShell (Windows):**
-```powershell
-python scripts/train/train_sb3.py env=walker2d training.total_timesteps=1000000
-```
-
-**Bash (Linux/Mac):**
-```bash
-python scripts/train/train_sb3.py env=walker2d training.total_timesteps=1000000
-```
-
-### Humanoid Forward Walking
-
-**PowerShell (Windows):**
-```powershell
-python scripts/train/train_sb3.py `
-  env=humanoid `
-  training.total_timesteps=50000000 `
-  env.vec_env.n_envs=16
-```
-
-**Bash (Linux/Mac):**
-```bash
-python scripts/30M steps, recommended for learning):**
-
-```powershell
-# PowerShell (Windows)
-python scripts/train/train_sb3.py `
-  env=humanoid_stairs_easy `
-  training.total_timesteps=30000000
-```
-
-```bash
-# Bash (Linux/Mac)
-python scripts/train/train_sb3.py \
-  env=humanoid_stairs_easy \
-  training.total_timesteps=30000000
-```
-
-**Evaluation with Custom Environment Parameters:**
-
-```powershell
-# PowerShell (Windows) - Note: JSON in single quotes with escaped inner quotes
-python scripts/evaluate/evaluate_sb3.py `
-  --env_id HumanoidStairsConfigurable-v0 `
-  --model_path "outputs/2025-12-06/17-36-50/eval/best_model.zip" `
-  --vecnorm_path "outputs/2025-12-06/17-36-50/vecnormalize_final.pkl" `
-  --render --deterministic --episodes 5 `
-  --env_kwargs '{\"flat_distance_before_stairs\": 2.0, \"num_steps\": 8, \"step_height\": 0.1, \"step_depth\": 0.8, \"end_platform_length\": 5.0, \"stairs_after_top\": false, \"end_with_abyss\": false, \"forward_reward_weight\": 2.0, \"height_reward_weight\": 8.0, \"ctrl_cost_weight\": 0.1, \"contact_cost_weight\": 2e-07, \"healthy_reward\": 15.0, \"step_bonus\": 5.0, \"lateral_penalty_weight\": 0.3, \"check_healthy_z_relative\": true, \"terminate_when_unhealthy\": true, \"healthy_z_range\": [1.0, 2.0]}'
-```
-
-```bash
-# Bash (Linux/Mac) - JSON in single quotes
-python scripts/evaluate/evaluate_sb3.py \
-  --env_id HumanoidStairsConfigurable-v0 \
-  --model_path "outputs/2025-12-06/17-36-50/eval/best_model.zip" \
-  --vecnorm_path "outputs/2025-12-06/17-36-50/vecnormalize_final.pkl" \
-  --render --deterministic --episodes 5 \
-  --env_kwargs '{"flat_distance_before_stairs": 2.0, "num_steps": 8, "step_height": 0.1, "step_depth": 0.8, "end_platform_length": 5.0, "stairs_after_top": false, "end_with_abyss": false, "forward_reward_weight": 2.0, "height_reward_weight": 8.0, "ctrl_cost_weight": 0.1, "contact_cost_weight": 2e-07, "healthy_reward": 15.0, "step_bonus": 5.0, "lateral_penalty_weight": 0.3, "check_healthy_z_relative": true, "terminate_when_unhealthy": true, "healthy_z_range": [1.0, 2.0]}'ain_sb3.py \
-  env=humanoid_stairs_easy \
-  training.total_timesteps=5000000 \
-  env.vec_env.n_envs=8
-```
-
-**Standard Stairs:**
-```powershell
-python scripts/train/train_sb3.py \
-  env=humanoid_stairs \
-  Flat Circuit (4 waypoints, 80M steps):**
-
-```powershell
-# PowerShell (Windows) - Save output to log
-python scripts/train/train_sb3.py `
-  env=humanoid_circuit_flat `
-  training.total_timesteps=80000000 2>&1 | Tee-Object -FilePath training_circuit.log
-```
-
-```bash
-# Bash (Linux/Mac) - Save output to log
-python scripts/train/train_sb3.py \
-  env=humanoid_circuit_flat \
-  training.total_timesteps=80000000 2>&1 | tee training_circuit.log
-```
-
-**Evaluation with Custom Circuit Configuration:**
-
-```powershell
-# PowerShell (Windows)
-python scripts/evaluate/evaluate_sb3.py `
-  --env_id HumanoidCircuit-v0 `
-  --model_path "outputs/2025-12-23/14-37-50/eval/best_model.zip" `
-  --vecnorm_path "outputs/2025-12-23/14-37-50/vecnormalize_final.pkl" `
-  --render --deterministic --episodes 5 `
-  --env_kwargs '{\"waypoints\": [[5.0, 0.0], [5.0, 5.0], [2.0, 5.0], [2.0, 0.0]], \"waypoint_reach_threshold\": 1.5, \"stairs\": [], \"terrain_width\": 15.0, \"progress_reward_weight\": 200.0, \"waypoint_bonus\": 150.0, \"circuit_completion_bonus\": 500.0, \"height_reward_weight\": 0.0, \"forward_reward_weight\": 1.0, \"heading_reward_weight\": 2.0, \"balance_reward_weight\": 0.5, \"optimal_speed\": 1.2, \"speed_regulation_weight\": 0.2, \"ctrl_cost_weight\": 0.1, \"contact_cost_weight\": 5e-7, \"healthy_reward\": 5.0, \"terminate_when_unhealthy\": true, \"healthy_z_range\": [0.8, 3.0]}'
-```
-
-```bash
-# Bash (Linux/Mac)
-python scripts/evaluate/evaluate_sb3.py \
-  --env_id HumanoidCircuit-v0 \
-  --model_path "outputs/2025-12-23/14-37-50/eval/best_model.zip" \
-  --vecnorm_path "outputs/2025-12-23/14-37-50/vecnormalize_final.pkl" \
-  --render --deterministic --episodes 5 \
-  --env_kwargs '{"waypoints": [[5.0, 0.0], [5.0, 5.0], [2.0, 5.0], [2.0, 0.0]], "waypoint_reach_threshold": 1.5, "stairs": [], "terrain_width": 15.0, "progress_reward_weight": 200.0, "waypoint_bonus": 150.0, "circuit_completion_bonus": 500.0, "height_reward_weight": 0.0, "forward_reward_weight": 1.0, "heading_reward_weight": 2.0, "balance_reward_weight": 0.5, "optimal_speed": 1.2, "speed_regulation_weight": 0.2, "ctrl_cost_weight": 0.1, "contact_cost_weight": 5e-7, "healthy_reward": 5.0, "terminate_when_unhealthy": true, "healthy_z_range": [0.8, 3.0]}'
-```
-
-**Circuit with Stairs (Easy stairs + waypoints):**
-
-```powershell
-# PowerShell (Windows)
-python scripts/train/train_sb3.py `
-  env=humanoid_circuit_easy `
-  training.total_timesteps=80000000
-```
-
-```bash
-# Bash (Linux/Mac)
-python scripts/train/train_sb3.py \
-  env=humanoid_circuit_easy \
-  training.total_timesteps=80000000t (5 waypoints with stairs):**
-```powershell
-python scripts/train/train_sb3.py \
-  env=humanoid_circuit_custom \
-  training.total_timesteps=25000000 \
-  env.vec_env.n_envs=16
-```
-
-**Complex Circuit (Expert):**
-```powershell
-python scripts/train/train_sb3.py \
-  env=humanoid_circuit_complex \
-  training.total_timesteps=30000000 \
-  env.vec_env.n_envs=16 \
-  training=long
-```
-
----
-
-## 🧪 Extras: SAC & TorchRL
-
-These alternative approaches are experimental and provided for comparison purposes. The main results use SB3 with PPO.
-
-### SAC Training (Stable-Baselines3)
-
-```bash
-# Train Humanoid with SAC
-python scripts/train/train_sac.py env=humanoid_sac training.total_timesteps=5000000
-
-# Evaluate SAC model
-python scripts/evaluate/evaluate_sac.py \
-  --env_id Humanoid-v5 \
-  --model_path "outputs_sac/YYYY-MM-DD/HH-MM-SS/checkpoints/model_XXXXXX.zip" \
-  --render --deterministic --episodes 5
-```
-
-### TorchRL Training
-
-```bash
-python scripts/train/train_torchrl.py \
-  --env_id Walker2d-v5 \
-  --total_frames 1000000 \
-  --n_envs 16 \
-  --device cpu
-
-# Evaluate TorchRL model
-python scripts/evaluate/evaluate_torchrl.py \
-  --env_id Walker2d-v5 \
-  --model_path "outputs_torchrl/model.pt" \
-  --render --episodes 5
-```
-
----
-
-## 🔧 Configuration
-
-Use Hydra to override any parameter:
-
-```powershell
-# Use longer training preset
-python scripts/train/train_sb3.py env=humanoid training=long
-
-# Custom hyperparameters
-python scripts/train/train_sb3.py \
-  env=walker2d \
-  algo.hyperparams.learning_rate=2.5e-4 \
-  algo.hyperparams.batch_size=4096
-
-# More parallel environments for faster training
-python scripts/train/train_sb3.py \
-  env=humanoid \
-  env.vec_env.n_envs=32
-
-# Adjust checkpoint frequency
-python scripts/train/train_sb3.py \
-  env=humanoid_stairs \
-  training.checkpoint_every_steps=500000
-```
-
-### Key Configuration Files
-
-- `conf/env/*.yaml` - Environment configurations
-  - Base: `humanoid.yaml`, `walker2d.yaml`
-  - Stairs: `humanoid_stairs_*.yaml` (easy, hard, configurable, etc.)
-  - Circuit: `humanoid_circuit_*.yaml` (flat, simple, complex, custom)
-  - Destination: Configured in `train_destination.py`
-- `conf/algo/ppo.yaml` - PPO algorithm hyperparameters
-- `conf/training/*.yaml` - Training duration settings (default, long)
-- `conf/main.yaml` - Global settings (seed, vecnorm, resume_from)
-
----
-
-## 💡 Tips
-
-1. **Start simple** - Train Walker2d-v5 first to verify setup
-2. **Progressive difficulty** - Master easier stairs before attempting hard/circuit
-3. **Use checkpoints** - Models auto-saved every 250k steps in `outputs/<date>/<time>/checkpoints/`
-4. **Resume interrupted training** - Use `resume_from="path/to/checkpoint.zip"` parameter
-5. **Monitor with TensorBoard** - Real-time training visualization with `tensorboard --logdir outputs`
-6. **VecNormalize preservation** - Resume function now loads both model and normalization stats
-7. ****Humanoid-v5 (base):** 376 dimensions
-   - **Destination:** 378 dims (376 + 2 target vector)
-   - **Stairs:** 401 dims (376 + 25 height grid, 5×5, 0.3m spacing)
-   - **Circuit:** 406 dims (376 + 25 height grid + 2 waypoint + 1 progress + 2 heading)
-   - **Height grid:** 5×5 grid, 0.3m spacing, agent-centered, relative heights
-   - **Navigation vectors:** Always relative to agent position (position-invariant learning)
-   - See [docs/OBSERVATION_SPACES.md](docs/OBSERVATION_SPACES.md) for complete detailst target
-   - Target vector (destination): 2D relative coordinates to goal
-8. **Training duration recommendations**:
-   - Walker2d: 1M steps (~30 min)
-   - Humanoid-v5: 5-10M steps (~5-10 hours)
-   - Destination: 15-20M steps (~15-20 hours)
-   - Stairs (easy): 5M steps (~5 hours)
-   - Stairs (standard/hard): 10-15M steps (~10-15 hours)
-   - Circuit (simple): 20M steps (~20 hours)
-   - Circuit (complex): 30M+ steps (~30+ hours)
-9. **Stairs configurations**: Start with `humanoid_stairs_easy` for learning, then progress to standard/hard
-10. **Circuit difficulty**: Use curriculum from flat → simple → easy → complex
-
----
-
-## 🐛 Troubleshooting
-
-**Import errors:**
-- Always activate virtual environment: `.\.venv\Scripts\activate`
-- Make sure to run from project root
-
-**MuJoCo rendering issues:**
-```bash
-# Linux/Mac
-export MUJOCO_GL=glfw
-
-# Windows (usually works out of box)
-```
-
-**Environment not found:**
-- Scripts in `scripts/` automatically import `envs` module
-- Legacy scripts in root may need manual import
-
-### Windows PowerShell Notes
-
-When using `--env_kwargs` with JSON on Windows PowerShell, special escaping is required:
-
-```powershell
-# Correct PowerShell syntax for custom environment kwargs
-python scripts/evaluate/evaluate_sb3.py --env_id HumanoidCircuit-v0 `
-  --model_path "outputs/2025-12-12/09-48-00/eval/best_model.zip" `
-  --vecnorm_path "outputs/2025-12-12/09-48-00/vecnormalize_final.pkl" `
-  --deterministic --render --episodes 3 `
-  --env_kwargs '{\"waypoints\": [[10.0, 0.0], [10.0, 10.0]], \"waypoint_reach_threshold\": 1.0}'
-```
-
-**Key PowerShell Tips:**
-- Wrap JSON in **single quotes** `'...'`
-- Escape inner double quotes with backslashes: `\"`
-- Use backticks `` ` `` for line continuation
-- Or keep command on one line
-
----
-
-## 📊 Performance Benchmarks
-
-| Environment | Timesteps | Mean Reward | Observation Dims | Training Time* |
-|-------------|-----------|-------------|(376 + 25 grid) | ~5 hours |
-| HumanoidStairsHard | 15M | ~7000+ | 401 (376 + 25 grid) | ~15 hours |
-| HumanoidCircuitSimple | 20M | ~4000+ | 406 (376 + 25 grid + 5 nav) | ~20 hours |
-| HumanoidCircuitComplex | 30M+ | ~3000+ | 406 (376 + 25 grid + 5 nav) | ~30+ hours |
-
-*Approximate on 8-16 parallel environments with CPU
-
-### Observation Space Breakdown
-
-- **Base (376):** Joint positions (22), velocities (23), COM inertia (140), COM velocity (84), actuator forces (17), contact forces (84)
-- **Height Grid (+25):** 5×5 terrain height samples, 0.3m spacing, agent-centered
-- **Target Vector (+2):** Relative (dx, dy) to destination (Destination env)
-- **Navigation (+5):** Waypoint vector (2), progress (1), heading sin/cos (2) (Circuit env) |
-| HumanoidStairsHard | 15M | ~7000+ | 401 | ~15 hours |
-| HumanoidCircuitSimple | 20M | ~4000+ | 404 (376 + 25 grid + 2 waypoint + 1 progress) | ~20 hours |
-| HumanoidCircuitComplex | 30M+ | ~3000+ | 404 | ~30+ hours |
-
-*Approximate on 8-16 parallel environments with CPU
-
-### Key Observations
-
-### Key Observations
-
-- **Height grid** adds 25 observations (5×5 grid, 0.3m spacing, agent-centered)
-- **Destination task** uses 2D relative target vector for position-invariant learning
-- **Circuit tasks** combine 25-dim height grid + 5-dim navigation (waypoint vector, progress, heading)
-- **Navigation components** are always relative to agent (enables generalization)
-- **Contact cost** included in Humanoid-v5 and configurable stairs (5e-7 default weight)
-- **Resume training** preserves both model weights and VecNormalize statistics
-
----
-
-## 📊 Best Model Results
-
-The **4 best performing models** for each scenario are documented in [how_to_use.txt](how_to_use.txt), including:
-- Exact training commands used
-- Evaluation commands with proper `--env_kwargs` configuration
-- Model paths and performance metrics
-
-This file serves as a quick reference for reproducing the best results.
-
----
-
-## 🤝 Contributing
-
-This is a research project. Feel free to:
-- Add new environments
-- Improve reward shaping
-- Add new algorithms
-- Enhance documentation
-
----
-
-## 📝 License
-
-MIT License - See LICENSE file for details
-
----
-
-## 🙏 Acknowledgments
-
-- **Gymnasium** - https://gymnasium.farama.org/
-- **MuJoCo** - https://mujoco.org/
-- **Stable-Baselines3** - https://stable-baselines3.readthedocs.io/
-- **TorchRL** - https://pytorch.org/rl/
-- **Hydra** - https://hydra.cc/
+Built on [Gymnasium](https://gymnasium.farama.org/), [MuJoCo](https://mujoco.org/), [Stable-Baselines3](https://stable-baselines3.readthedocs.io/) and [Hydra](https://hydra.cc/).
