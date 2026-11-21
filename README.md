@@ -205,7 +205,7 @@ If you use this code or the environments, please cite:
 ```bibtex
 @inproceedings{vieira2026humanoid,
   title     = {Reward Shaping and Terrain-Relative Termination for {PPO} Humanoid Locomotion Beyond Flat Ground},
-  author    = {Vieira, Jo{\~a}o Viterbo and Pinto, Francisco and Carvalho, Jos{\'e} Pedro and Aguiar, Ant{\'o}nio Pedro},
+  author    = {Vieira, Jo{\~a}o Viterbo and Pinto, Francisco and Carvalho, Jos{\'e} Pedro and Aguiar, A. Pedro},
   booktitle = {ROBOT2026: Iberian Robotics Conference},
   year      = {2026}
 }
