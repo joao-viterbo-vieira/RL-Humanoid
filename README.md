@@ -5,7 +5,7 @@ Faculty of Engineering, University of Porto (FEUP) · SYSTEC-ARISE
 
 Official code, trained models and evaluation scripts for our **ROBOT2026** paper.
 
-📄 [**Paper (PDF)**](paper/RL_Humanoid_conference.pdf) · 🎞️ [**Slides**](ROBOT2026_presentation/paper%20robot2026.pdf) · 🎬 [**Videos**](best_videos/)
+📄 [**Paper (PDF)**](paper/RL_Humanoid_conference.pdf) · 📝 [**Submitted version (#77)**](paper/ROBOT2026_paper_77_submitted.pdf) · 🎞️ [**Slides**](ROBOT2026_presentation/paper%20robot2026.pdf) · 🎬 [**Videos**](best_videos/)
 
 ![The four tasks: flat locomotion, stair climbing, circuit navigation, and circuit with stairs](images/task_suite_environments.png)
 
@@ -160,7 +160,7 @@ More stair and circuit variants (`humanoid_stairs_hard`, `humanoid_stairs_updown
 
 ```
 RL-Humanoid/
-├── paper/                    # ROBOT2026 paper (PDF)
+├── paper/                    # ROBOT2026 paper (latest and submitted PDFs)
 ├── ROBOT2026_presentation/   # Conference slides (PDF and PPTX)
 ├── envs/                     # Custom Gymnasium/MuJoCo environments
 │   ├── custom/               #   stairs, configurable stairs, circuit, destination
