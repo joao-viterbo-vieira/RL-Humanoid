@@ -3,6 +3,8 @@
 .venv/
 outputs/
 outputs_torchrl/
+outputs_sac/
+outputs_destination/
 multirun/
 */checkpoints/
 *.zip

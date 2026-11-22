@@ -1,3 +1,0 @@
-- env=humanoid_circuit_flat
-- algo=sac
-- training.total_timesteps=10000000

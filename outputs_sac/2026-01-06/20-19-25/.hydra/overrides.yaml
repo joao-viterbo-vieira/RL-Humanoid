@@ -1,3 +1,0 @@
-- env=humanoid
-- algo=sac
-- training.total_timesteps=10000000
